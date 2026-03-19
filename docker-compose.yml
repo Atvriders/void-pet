@@ -1,6 +1,6 @@
 services:
   void-pet:
-    build: .
+    image: ghcr.io/atvriders/void-pet:latest
     ports:
       - "3003:80"
     restart: unless-stopped
