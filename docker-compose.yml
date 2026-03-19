@@ -1,0 +1,6 @@
+services:
+  void-pet:
+    build: .
+    ports:
+      - "3003:80"
+    restart: unless-stopped
