@@ -43,7 +43,10 @@ app.get('/api/health', (req, res) => {
 app.get('/api/leaderboard', (req, res) => {
   try {
     const rows = db.prepare(
-      'SELECT username, care_score, stage, age, ascensions, date FROM leaderboard ORDER BY care_score DESC LIMIT 50'
+      `SELECT l.username, l.care_score, l.stage, l.age, l.ascensions, l.date, p.updated as last_seen
+       FROM leaderboard l
+       LEFT JOIN pets p ON l.username = p.username
+       ORDER BY l.care_score DESC LIMIT 50`
     ).all();
     const result = rows.map(row => ({
       username: row.username,
@@ -52,6 +55,7 @@ app.get('/api/leaderboard', (req, res) => {
       age: row.age,
       ascensions: row.ascensions,
       date: row.date,
+      lastSeen: row.last_seen ?? null,
     }));
     res.json(result);
   } catch (err) {

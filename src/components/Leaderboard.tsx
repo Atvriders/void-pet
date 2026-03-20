@@ -218,12 +218,33 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
                   fontVariantNumeric: 'tabular-nums',
                 };
 
+                const isOnline = entry.lastSeen != null && Date.now() - entry.lastSeen < 60_000;
+
                 return (
                   <tr key={entry.username} style={rowStyle}>
                     <td style={{ ...tdBase, color: rankColor, fontWeight: 700, width: 40 }}>
                       {rank}
                     </td>
-                    <td style={{ ...tdBase, ...usernameStyle }}>{entry.username}</td>
+                    <td style={{ ...tdBase, ...usernameStyle }}>
+                      {isOnline && (
+                        <span
+                          title="Online"
+                          style={{
+                            display: 'inline-block',
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            background: '#4ade80',
+                            boxShadow: '0 0 6px #4ade80',
+                            marginRight: 7,
+                            verticalAlign: 'middle',
+                            flexShrink: 0,
+                          }}
+                          aria-label="Online"
+                        />
+                      )}
+                      {entry.username}
+                    </td>
                     <td style={scoreStyle}>
                       {Math.floor(entry.careScore).toLocaleString()}
                     </td>

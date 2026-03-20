@@ -32,6 +32,7 @@ export interface LeaderboardEntry {
   age:        number;      // minutes
   ascensions: number;
   date:       number;      // Date.now() when entry was recorded
+  lastSeen?:  number | null; // Date.now() of last pet save — null if no pet record
 }
 
 export type Action =
