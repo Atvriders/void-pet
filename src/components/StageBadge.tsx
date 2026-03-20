@@ -45,35 +45,21 @@ const sizeStyles: Record<'sm' | 'md' | 'lg', { fontSize: string; padding: string
   lg: { fontSize: '14px', padding: '4px 10px', borderRadius: '6px' },
 };
 
-const shimmerKeyframes = `
+// Inject shimmer keyframes once at module load (not during render)
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = `
 @keyframes stageBadgeShimmer {
   0%   { background-position: -200% center; }
   100% { background-position:  200% center; }
 }
-@keyframes stageBadgeHue {
-  0%   { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
-}
 `;
-
-let shimmerInjected = false;
-function injectShimmerStyles() {
-  if (shimmerInjected || typeof document === 'undefined') return;
-  const style = document.createElement('style');
-  style.textContent = shimmerKeyframes;
   document.head.appendChild(style);
-  shimmerInjected = true;
 }
 
 export default function StageBadge({ stage, size = 'md' }: Props) {
   const { color, border, background } = stageStyles[stage];
   const { fontSize, padding, borderRadius } = sizeStyles[size];
-
-  const isAscendant = stage === 'ascendant';
-
-  if (isAscendant) {
-    injectShimmerStyles();
-  }
 
   const baseStyle: CSSProperties = {
     display: 'inline-block',
@@ -88,22 +74,9 @@ export default function StageBadge({ stage, size = 'md' }: Props) {
     lineHeight: 1,
   };
 
-  if (isAscendant) {
-    const ascendantStyle: CSSProperties = {
-      ...baseStyle,
-      background: 'linear-gradient(90deg, #c0c0c0 0%, #ffffff 25%, #e8e8ff 50%, #ffffff 75%, #c0c0c0 100%)',
-      backgroundSize: '200% auto',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      backgroundClip: 'text',
-      animation: 'stageBadgeShimmer 2.5s linear infinite, stageBadgeHue 6s linear infinite',
-      border: `1px solid ${border}`,
-      backgroundColor: 'rgba(255,255,255,0.06)',
-      backgroundOrigin: 'border-box',
-    };
-
+  if (stage === 'ascendant') {
     return (
-      <span style={{ display: 'inline-block', background: 'rgba(255,255,255,0.06)', border: `1px solid ${border}`, borderRadius, padding, animation: 'stageBadgeHue 6s linear infinite' }}>
+      <span style={{ display: 'inline-block', background: 'rgba(255,255,255,0.06)', border: `1px solid ${border}`, borderRadius, padding }}>
         <span
           style={{
             fontFamily: "'Share Tech Mono', monospace",

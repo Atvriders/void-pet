@@ -1,6 +1,6 @@
-import type { CSSProperties } from 'react';
 import type { PetState, Mood } from '../game/types';
 import { MOOD_LABEL } from '../game/mood';
+import StageBadge from './StageBadge';
 
 interface Props { pet: PetState; mood: Mood }
 
@@ -29,16 +29,6 @@ function segmentColor(val: number, invert: boolean): string {
   if (pct >= 40) return '#f5c542';
   return '#ff4040';
 }
-
-// ─── Stage badge config ──────────────────────────────────────────────────────
-
-const STAGE_COLORS: Record<string, string> = {
-  seed:       '#00d4ff',
-  sprite:     '#4080ff',
-  entity:     '#a78bfa',
-  apex:       '#fbbf24',
-  corrupted:  '#ff4040',
-};
 
 // ─── Mood icon config ────────────────────────────────────────────────────────
 
@@ -97,49 +87,6 @@ function SegmentBar({ val, invert }: { val: number; invert: boolean }) {
   );
 }
 
-function StageBadge({ stage }: { stage: string }) {
-  const isAscendant = stage === 'ascendant';
-  const color = STAGE_COLORS[stage] ?? '#a0b0c0';
-
-  const baseStyle: CSSProperties = {
-    display:       'inline-block',
-    padding:       '2px 10px',
-    borderRadius:  20,
-    fontSize:      11,
-    fontWeight:    700,
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase',
-    border:        `1px solid ${isAscendant ? 'transparent' : color}40`,
-  };
-
-  if (isAscendant) {
-    return (
-      <span
-        style={{
-          ...baseStyle,
-          background: 'linear-gradient(90deg,#00d4ff,#a78bfa,#fbbf24,#ff6030)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          border: '1px solid #ffffff30',
-        }}
-      >
-        {stage}
-      </span>
-    );
-  }
-
-  return (
-    <span
-      style={{
-        ...baseStyle,
-        color,
-        background: `${color}18`,
-      }}
-    >
-      {stage}
-    </span>
-  );
-}
 
 function MetaChip({ label, value }: { label: string; value: string }) {
   return (
