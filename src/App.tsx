@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useRef, useState } from 'react';
+import { useReducer, useEffect, useRef, useState, useCallback } from 'react';
 import Creature       from './components/Creature';
 import StatPanel      from './components/StatPanel';
 import ActionBar      from './components/ActionBar';
@@ -6,6 +6,7 @@ import LifeLog        from './components/LifeLog';
 import UsernameScreen from './components/UsernameScreen';
 import Leaderboard    from './components/Leaderboard';
 import { reducer, INITIAL_STATE, makeBootLog } from './game/reducer';
+import type { Action } from './game/types';
 import { getMood, MOOD_HUE, MOOD_LABEL } from './game/mood';
 import {
   getStoredUsername,
@@ -29,6 +30,11 @@ export default function App() {
 
   // ── Pet state ────────────────────────────────────────────────────────────
   const [petState, dispatch] = useReducer(reducer, INITIAL_STATE);
+  const [lastAction, setLastAction] = useState<{ type: string; at: number } | null>(null);
+  const wrappedDispatch = useCallback((action: Action) => {
+    dispatch(action);
+    setLastAction({ type: action.type, at: Date.now() });
+  }, []);
   const [now, setNow]        = useState(Date.now);
   const rafRef               = useRef(0);
   const lastScoreRef         = useRef<number>(-1);
@@ -207,10 +213,10 @@ export default function App() {
       <div className="game-area">
         <div className="creature-col">
           <div className="creature-frame" data-mood={mood}>
-            <Creature pet={petState} mood={mood} />
+            <Creature pet={petState} mood={mood} lastAction={lastAction} />
           </div>
           <div className={`mood-badge ${mood}`}>{moodLabel}</div>
-          <ActionBar pet={petState} now={now} dispatch={dispatch} />
+          <ActionBar pet={petState} now={now} dispatch={wrappedDispatch} />
         </div>
 
         <div className="info-col">
