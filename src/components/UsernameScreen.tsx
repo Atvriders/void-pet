@@ -7,17 +7,19 @@ interface Props {
 const UsernameScreen: React.FC<Props> = ({ onSubmit }) => {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const validate = (value: string): string => {
     const trimmed = value.trim();
     if (trimmed.length < 2) return 'Minimum 2 characters required.';
     if (trimmed.length > 16) return 'Maximum 16 characters allowed.';
     if (!/^[a-zA-Z0-9_]+$/.test(trimmed)) return 'Only letters, numbers, and underscores allowed.';
+    if (!/[a-zA-Z0-9]/.test(trimmed)) return 'Username must contain at least one letter or number.';
     return '';
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
+    const raw = e.target.value.toUpperCase(); // keep state in sync with displayed uppercase value
     if (raw.length <= 16) {
       setUsername(raw);
       if (error) setError('');
@@ -26,19 +28,19 @@ const UsernameScreen: React.FC<Props> = ({ onSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     const err = validate(username);
     if (err) {
       setError(err);
       return;
     }
+    setSubmitting(true);
     onSubmit(username.trim().toUpperCase());
   };
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-
         @keyframes voidPulse {
           0%, 100% { text-shadow: 0 0 8px #00d4ff, 0 0 24px #00d4ff44; opacity: 1; }
           50% { text-shadow: 0 0 18px #00d4ff, 0 0 48px #00d4ff88, 0 0 72px #00d4ff33; opacity: 0.88; }
@@ -200,20 +202,25 @@ const UsernameScreen: React.FC<Props> = ({ onSubmit }) => {
           text-transform: uppercase;
           padding: 14px 0;
           cursor: pointer;
-          transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+          transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, opacity 0.2s ease;
           position: relative;
           overflow: hidden;
         }
 
-        .void-button:hover {
+        .void-button:hover:not(:disabled) {
           background: #00d4ff12;
           box-shadow: 0 0 18px #00d4ff44, inset 0 0 18px #00d4ff0a;
           color: #80eeff;
         }
 
-        .void-button:active {
+        .void-button:active:not(:disabled) {
           background: #00d4ff22;
           box-shadow: 0 0 28px #00d4ff66, inset 0 0 24px #00d4ff18;
+        }
+
+        .void-button:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
         }
 
         .void-divider {
@@ -253,6 +260,7 @@ const UsernameScreen: React.FC<Props> = ({ onSubmit }) => {
               value={username}
               onChange={handleChange}
               maxLength={16}
+              autoFocus
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="characters"
@@ -270,8 +278,12 @@ const UsernameScreen: React.FC<Props> = ({ onSubmit }) => {
 
             <div className="void-divider" />
 
-            <button className="void-button" type="submit">
-              Initialize
+            <button
+              className="void-button"
+              type="submit"
+              disabled={submitting || username.trim().length === 0}
+            >
+              {submitting ? 'Initializing...' : 'Initialize'}
             </button>
           </form>
         </div>
