@@ -263,7 +263,6 @@ export default function StatPanel({ pet, mood }: Props) {
 
       {/* ── Metadata chips ────────────────────────────────────────────── */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-        <MetaChip label="Stage" value={pet.stage} />
         <MetaChip label="Age"   value={fmtAge(pet.age)} />
         <MetaChip label="Care"  value={Math.floor(pet.careScore).toString()} />
         <MetaChip label="Asc"   value={pet.ascensions.toString()} />
