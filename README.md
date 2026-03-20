@@ -75,7 +75,7 @@ Maximum rate is 4 points per minute. Care score never decreases.
 
 ## Actions
 
-Each button shows which stats it affects — green means the stat improves, orange means it takes a hit.
+Each button shows colored stat effect glyphs at the bottom — green means the stat improves, orange means it takes a hit.
 
 | Button | Sub-label | Effects | Cooldown | Requirements |
 |---|---|---|---|---|
@@ -84,6 +84,16 @@ Each button shows which stats it affects — green means the stat improves, oran
 | **DEFRAG** | water | ▲− ❋+ | 60 s | Not sleeping (available while corrupted for recovery) |
 | **HIBERNATE** | sleep / wake | ▲− ⚡+ (passive, while sleeping) | None | Not corrupted |
 | **OVERCLOCK** | pet | ❋+ ▲+ ⚡− | 120 s | Not sleeping, not corrupted, Power ≥ 25 |
+
+When a button is pressed, the creature reacts with a canvas burst animation and floating stat-change labels rise above it:
+
+| Action | Burst effect |
+|---|---|
+| INJECT | 6 ◈ glyphs converge inward from the edges |
+| SIMULATE | 8 L-shaped circuit traces expand outward with node dots |
+| DEFRAG | 3 cyan cooling ripple rings + 8 outward particles |
+| HIBERNATE | 8 stars orbit the creature and fade |
+| OVERCLOCK | 5 jagged lightning bolts fire outward + white flash |
 
 **OVERCLOCK** has a 20% chance of a thermal surge: +60 Heat instead of +35.
 
@@ -107,6 +117,13 @@ The entity's face and the status label reflect its current condition. Evaluated 
 | neutral | NOMINAL | *(none of the above)* |
 
 The entity's canvas animation, face expression, and UI accent colour all change with mood.
+
+The creature canvas is always animated with several layers:
+
+- **Matrix rain** — columns of falling katakana and symbols cascade behind the entity, tinted to the current mood hue
+- **Scanline sweep** — a soft green gradient band drifts continuously down the canvas
+- **Blinking** — the entity blinks at random intervals (every 2.5–6.5 seconds), with a smooth 150 ms close/open
+- **Stage-specific effects** — Apex stage adds occasional lightning arcs; Ascendant cycles through all hues
 
 ---
 
@@ -150,6 +167,8 @@ If you don't want to recover, use the **ABANDON** button in the top bar to delet
 The global leaderboard tracks the top 50 care scores across all usernames. Scores are submitted to the server automatically as care score increases. Only a new personal best replaces your existing entry.
 
 Open the leaderboard via **⊞ BOARD** in the top bar. It shows username, care score, current stage, entity age, and ascension count.
+
+A green dot appears next to any username whose pet was saved within the last 60 seconds — indicating they are currently active. The leaderboard query joins the `pets` table on `updated` timestamp to determine this without a separate heartbeat mechanism.
 
 ---
 
