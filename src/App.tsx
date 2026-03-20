@@ -3,6 +3,8 @@ import Creature       from './components/Creature';
 import StatPanel      from './components/StatPanel';
 import ActionBar      from './components/ActionBar';
 import LifeLog        from './components/LifeLog';
+import WaveformMonitor from './components/WaveformMonitor';
+import EntityConsole   from './components/EntityConsole';
 import UsernameScreen from './components/UsernameScreen';
 import Leaderboard    from './components/Leaderboard';
 import { reducer, INITIAL_STATE, makeBootLog } from './game/reducer';
@@ -222,8 +224,11 @@ export default function App() {
         <div className="info-col">
           <StatPanel pet={petState} mood={mood} />
           <LifeLog log={petState.log} />
+          <WaveformMonitor pet={petState} mood={mood} />
         </div>
       </div>
+
+      <EntityConsole pet={petState} mood={mood} username={username} />
 
       {/* ── Corruption alert ── */}
       {petState.stage === 'corrupted' && petState.recoverNeeded > 0 && (

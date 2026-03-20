@@ -59,6 +59,11 @@ html, body {
   50%       { opacity: 0.55; }
 }
 
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
 /* ── App shell ──────────────────────────────────────────────────────────── */
 .app {
   display: flex;
@@ -67,6 +72,8 @@ html, body {
   background: var(--bg);
   position: relative;
   overflow-x: hidden;
+  background-image: radial-gradient(circle, rgba(0, 212, 255, 0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
 /* Mood accent overrides */
