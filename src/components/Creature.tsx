@@ -100,6 +100,7 @@ function drawFace(
   const happy       = mood === 'happy';
   const overheating = mood === 'overheating';
   const corrupted   = mood === 'corrupted';
+  const hungry      = mood === 'hungry';
 
   const eyeBaseR  = orbR * 0.22;
   const eyeR      = happy ? eyeBaseR * 1.12 : eyeBaseR;
@@ -110,7 +111,7 @@ function drawFace(
   const eyeY      = cy - orbR * 0.2;
 
   // Pupil offset for moods
-  const pupilDY = (sad || corrupted) ? pupilR * 0.5 : 0;
+  const pupilDY = (sad || corrupted) ? pupilR * 0.5 : hungry ? -pupilR * 0.4 : 0;
 
   // Pupil colour
   const pupilColor = overheating
@@ -226,6 +227,13 @@ function drawFace(
     ctx.lineTo(cx + mouthHW * 0.2,  jY - orbR * 0.08);
     ctx.lineTo(cx + mouthHW * 0.6,  jY + orbR * 0.05);
     ctx.lineTo(cx + mouthHW, jY);
+    ctx.stroke();
+
+  } else if (hungry) {
+    // Open 'O' mouth — gasping for signal
+    ctx.strokeStyle = `hsla(${hue}, 90%, 70%, 0.9)`;
+    ctx.beginPath();
+    ctx.ellipse(cx, mouthY + orbR * 0.1, mouthHW * 0.45, orbR * 0.22, 0, 0, TWO_PI);
     ctx.stroke();
 
   } else {

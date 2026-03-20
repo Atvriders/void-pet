@@ -77,7 +77,7 @@ Each stage has a distinct canvas animation — more rings, particles, and visual
 
 ## Corruption
 
-If Signal and Coherence both drop below 5 while Heat exceeds 85, the entity begins fragmenting. Run **DEFRAG** 3 times to pull it back. Neglect it long enough and it corrupts permanently — you can abandon it and start fresh, but the leaderboard remembers.
+If Signal and Coherence both drop below 5 while Heat exceeds 85, the entity begins fragmenting. Run **DEFRAG** 5 times to pull it back. Neglect it long enough and it corrupts permanently — you can abandon it and start fresh, but the leaderboard remembers.
 
 ---
 
@@ -109,10 +109,10 @@ npm run build   # production build
 
 ## Stack
 
-- **Frontend:** Vanilla JS, HTML5 Canvas
-- **Backend:** Node.js / Express
-- **Storage:** JSON flat-file (server-side, username-keyed)
-- **Container:** Docker via GHCR
+- **Frontend:** React 18 + TypeScript + Vite
+- **Rendering:** HTML5 Canvas (HiDPI-aware, 480×480px, real-time RAF loop)
+- **State:** `useReducer` + `localStorage` (no backend, no accounts)
+- **Container:** Docker via GHCR (Nginx static serve)
 
 ---
 

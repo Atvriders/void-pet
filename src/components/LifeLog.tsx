@@ -11,21 +11,6 @@ function getEntryBorderColor(entry: string): string {
   return "#1a2240";
 }
 
-function formatTimestamp(date: Date): string {
-  const hh = String(date.getHours()).padStart(2, "0");
-  const mm = String(date.getMinutes()).padStart(2, "0");
-  const ss = String(date.getSeconds()).padStart(2, "0");
-  return `[${hh}:${mm}:${ss}]`;
-}
-
-// Generate stable timestamps for each log entry based on index
-function getEntryTimestamp(index: number, totalEntries: number): string {
-  const now = new Date();
-  // Oldest entries further back in time
-  const offsetSeconds = (totalEntries - 1 - index) * 47;
-  const entryTime = new Date(now.getTime() - offsetSeconds * 1000);
-  return formatTimestamp(entryTime);
-}
 
 export default function LifeLog({ log }: Props) {
   const [cursorVisible, setCursorVisible] = useState(true);
@@ -145,7 +130,8 @@ export default function LifeLog({ log }: Props) {
             log.map((entry, i) => {
               const isLatest = i === 0;
               const borderColor = getEntryBorderColor(entry);
-              const timestamp = getEntryTimestamp(i, log.length);
+              // Entries from reducer already include a "[HH:MM] " prefix — display as-is
+              const text = entry;
 
               return (
                 <div
@@ -167,24 +153,13 @@ export default function LifeLog({ log }: Props) {
                 >
                   <span
                     style={{
-                      color: "#4a9090",
-                      fontSize: "10px",
-                      flexShrink: 0,
-                      opacity: 0.85,
-                      letterSpacing: "0.03em",
-                    }}
-                  >
-                    {timestamp}
-                  </span>
-                  <span
-                    style={{
                       color: isLatest ? "#b8cfe0" : "#607080",
                       fontSize: "11px",
                       lineHeight: "1.4",
                       letterSpacing: "0.02em",
                     }}
                   >
-                    {entry}
+                    {text}
                   </span>
                 </div>
               );

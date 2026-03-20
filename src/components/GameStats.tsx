@@ -60,7 +60,7 @@ export default function GameStats({ state, username: _username }: Props) {
         }}
       >
         <span aria-hidden="true">◈</span>
-        {careScore.toLocaleString()} pts
+        {Math.floor(careScore).toLocaleString()} pts
       </span>
 
       {/* Age */}

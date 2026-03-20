@@ -9,7 +9,7 @@ interface Props {
 
 function formatAge(minutes: number): string {
   const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
+  const m = Math.floor(minutes % 60);
   return `${h}h ${m}m`;
 }
 
@@ -275,7 +275,7 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
                     </td>
                     <td style={{ ...tdBase, ...usernameStyle }}>{entry.username}</td>
                     <td style={scoreStyle}>
-                      {entry.careScore.toLocaleString()}
+                      {Math.floor(entry.careScore).toLocaleString()}
                     </td>
                     <td style={tdBase}>
                       <StageBadge stage={entry.stage} />

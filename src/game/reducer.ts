@@ -4,7 +4,7 @@ import type { PetState, Action, Stage } from './types';
 const DECAY = {
   signal:    0.008,
   coherence: 0.005,
-  heat:      0.003,  // natural cooling
+  heat:     -0.003,  // natural cooling
   power:     0.002,
 };
 
@@ -102,7 +102,8 @@ export function reducer(state: PetState, action: Action): PetState {
 
       if (corruptTicks > 20 && state.stage !== 'corrupted') {
         newStage = 'corrupted';
-        log = addLog(log, '⚠ CRITICAL FAILURE — entity fragmenting.');
+        state = { ...state, recoverNeeded: 5 };
+        log = addLog(log, '⚠ CRITICAL FAILURE — entity fragmenting. Run DEFRAG ×5 to recover.');
       }
 
       // Evolution check (only if not corrupted or sleeping)
