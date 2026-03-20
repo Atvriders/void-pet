@@ -234,6 +234,8 @@ export function reducer(state: PetState, action: Action): PetState {
         careScore: Math.max(0, Number(s.careScore) || 0),
         age:       Math.max(0, Number(s.age)       || 0),
       };
+      // lastTick reset to now intentionally suppresses offline catch-up:
+      // the pet only decays while the tab is open (active-play design).
       return { ...INITIAL_STATE, ...s, ...safe, lastTick: Date.now() };
     }
 
