@@ -71,15 +71,22 @@ function hexagon(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: numbe
   ctx.stroke();
 }
 
-function glitchSlices(ctx: CanvasRenderingContext2D, t: number, hue: number, canvasW: number, canvasH: number) {
+function glitchSlices(
+  ctx: CanvasRenderingContext2D, t: number, hue: number,
+  canvasW: number, canvasH: number,
+  physW: number, physH: number
+) {
+  // getImageData/putImageData operate in physical (device) pixels, not CSS pixels
+  const dpr = physW / canvasW;
   const n = 3;
   for (let i = 0; i < n; i++) {
     const seed = Math.sin(t * 0.003 + i * 2.7) * 0.5 + 0.5;
     if (seed < 0.6) continue;
-    const y  = (seed * canvasH) | 0;
-    const h  = (seed * 12 + 3) | 0;
-    const dx = (Math.sin(t * 0.007 + i) * 30) | 0;
-    const img = ctx.getImageData(0, y, canvasW, h);
+    const y  = ((seed * physH) | 0);
+    const h  = ((seed * 12 + 3) * dpr) | 0;
+    const dx = ((Math.sin(t * 0.007 + i) * 30) * dpr) | 0;
+    if (h <= 0 || y + h > physH) continue;
+    const img = ctx.getImageData(0, y, physW, h);
     ctx.putImageData(img, dx, y);
   }
   ctx.fillStyle = `hsla(${hue}, 100%, 60%, 0.05)`;
@@ -307,14 +314,15 @@ function drawApex(ctx: CanvasRenderingContext2D, t: number, hue: number, bright:
   for (let i = 0; i < 8; i++) {
     particle(ctx, CX, CY, 150, s1 * 2 + (i / 8) * TWO_PI, hue + i * 25, 5.25);
   }
-  // Occasional lightning arc
+  // Occasional lightning arc — position seeded from t so it holds steady during the fade
   if (Math.sin(t * 0.003) > 0.85) {
     ctx.save();
     ctx.globalAlpha = (Math.sin(t * 0.003) - 0.85) / 0.15;
     ctx.strokeStyle = `hsl(${hue}, 100%, 90%)`;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    const a1 = Math.random() * TWO_PI, a2 = a1 + Math.PI + Math.random() * 0.8;
+    const a1 = Math.sin(t * 0.0001) * TWO_PI;
+    const a2 = a1 + Math.PI + Math.cos(t * 0.00013) * 0.8;
     ctx.moveTo(CX + Math.cos(a1) * 84, CY + Math.sin(a1) * 84);
     ctx.lineTo(CX + Math.cos(a1 + 0.4) * 135, CY + Math.sin(a1 + 0.4) * 135);
     ctx.lineTo(CX + Math.cos(a2) * 84, CY + Math.sin(a2) * 84);
@@ -360,7 +368,10 @@ function drawAscendant(ctx: CanvasRenderingContext2D, t: number, hue: number, br
   drawFace(ctx, CX, CY, orbR, h, mood);
 }
 
-function drawCorrupted(ctx: CanvasRenderingContext2D, t: number, _stage: Stage, mood: Mood, canvasW: number, canvasH: number) {
+function drawCorrupted(
+  ctx: CanvasRenderingContext2D, t: number, _stage: Stage, mood: Mood,
+  canvasW: number, canvasH: number, physW: number, physH: number
+) {
   const hue    = 5;
   const bright = 0.7;
   const pulse  = 1 + Math.sin(t * 0.004) * 0.15;
@@ -369,7 +380,7 @@ function drawCorrupted(ctx: CanvasRenderingContext2D, t: number, _stage: Stage, 
   ring(ctx, CX, CY, 75, 27, t * 0.001, hue, 0.4, 2.25);
   ctx.save();
   ctx.globalAlpha = 0.6;
-  glitchSlices(ctx, t, hue, canvasW, canvasH);
+  glitchSlices(ctx, t, hue, canvasW, canvasH, physW, physH);
   ctx.restore();
   drawFace(ctx, CX, CY, orbR, hue, mood);
 }
@@ -383,7 +394,9 @@ function drawFrame(
   mood: Mood,
   hue: number,
   canvasW: number,
-  canvasH: number
+  canvasH: number,
+  physW: number,
+  physH: number
 ) {
   ctx.clearRect(0, 0, canvasW, canvasH);
 
@@ -398,7 +411,7 @@ function drawFrame(
     : 1.0;
 
   if (corrupted) {
-    drawCorrupted(ctx, t, stage, mood, canvasW, canvasH);
+    drawCorrupted(ctx, t, stage, mood, canvasW, canvasH, physW, physH);
   } else {
     const drawT = sleeping ? t * 0.3 : overheating ? t * 1.6 : t;
     switch (stage) {
@@ -444,18 +457,20 @@ export default function Creature({ pet, mood }: Props) {
     if (!canvas) return;
 
     const dpr = window.devicePixelRatio || 1;
-    const physicalSize = CSS_SIZE * dpr;
+    const physW = CSS_SIZE * dpr;
+    const physH = CSS_SIZE * dpr;
 
-    canvas.width  = physicalSize;
-    canvas.height = physicalSize;
+    canvas.width  = physW;
+    canvas.height = physH;
 
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     ctx.scale(dpr, dpr);
 
     let raf = 0;
 
     function loop(now: number) {
-      drawFrame(ctx, now, pet.stage, mood, hue, CSS_SIZE, CSS_SIZE);
+      drawFrame(ctx!, now, pet.stage, mood, hue, CSS_SIZE, CSS_SIZE, physW, physH);
       raf = requestAnimationFrame(loop);
     }
     raf = requestAnimationFrame(loop);
