@@ -64,7 +64,6 @@ export default function EntityConsole({ pet, mood, username }: Props) {
   const holdRef      = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fadeRef      = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextRef      = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cycleRef     = useRef<ReturnType<typeof setInterval> | null>(null);
   const currentFull  = useRef('');
   const currentMood  = useRef<Mood>(mood);
 
@@ -115,10 +114,7 @@ export default function EntityConsole({ pet, mood, username }: Props) {
     const first = pool[Math.floor(Math.random() * pool.length)];
     startTyping(first);
 
-    return () => {
-      clearAll();
-      if (cycleRef.current) clearInterval(cycleRef.current);
-    };
+    return () => { clearAll(); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update mood ref when it changes so new messages use the right pool
