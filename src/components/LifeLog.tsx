@@ -75,7 +75,7 @@ export default function LifeLog({ log }: Props) {
               alignItems: "center",
               gap: "8px",
               color: "#8ab4c8",
-              fontSize: "11px",
+              fontSize: "13px",
               fontWeight: "bold",
               letterSpacing: "0.12em",
               textTransform: "uppercase",
@@ -99,7 +99,7 @@ export default function LifeLog({ log }: Props) {
               border: "1px solid #1e3550",
               borderRadius: "10px",
               padding: "2px 8px",
-              fontSize: "10px",
+              fontSize: "12px",
               color: "#4a9090",
               letterSpacing: "0.05em",
             }}
@@ -121,7 +121,7 @@ export default function LifeLog({ log }: Props) {
               style={{
                 textAlign: "center",
                 color: "#2a3f5a",
-                fontSize: "11px",
+                fontSize: "12px",
                 letterSpacing: "0.08em",
                 padding: "28px 12px",
               }}
@@ -156,7 +156,7 @@ export default function LifeLog({ log }: Props) {
                   <span
                     style={{
                       color: isLatest ? "#b8cfe0" : "#607080",
-                      fontSize: "11px",
+                      fontSize: "12px",
                       lineHeight: "1.4",
                       letterSpacing: "0.02em",
                     }}

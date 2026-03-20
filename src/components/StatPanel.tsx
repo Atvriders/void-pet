@@ -100,13 +100,13 @@ function MetaChip({ label, value }: { label: string; value: string }) {
         borderRadius:  20,
         background:    '#111828',
         border:        '1px solid #1e2e4a',
-        fontSize:      11,
+        fontSize:      13,
         color:         '#6a8aaa',
         letterSpacing: '0.04em',
         whiteSpace:    'nowrap',
       }}
     >
-      <span style={{ color: '#3a5070', textTransform: 'uppercase', fontSize: 10 }}>{label}</span>
+      <span style={{ color: '#3a5070', textTransform: 'uppercase', fontSize: 12 }}>{label}</span>
       <span style={{ color: '#c0d4f0', fontWeight: 700 }}>{value}</span>
     </span>
   );
@@ -148,7 +148,7 @@ export default function StatPanel({ pet, mood }: Props) {
           }}
         >
           <span style={{ fontSize: 18, lineHeight: 1 }}>{moodIcon}</span>
-          <span style={{ letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: 11 }}>
+          <span style={{ letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: 13 }}>
             {MOOD_LABEL[mood]}
           </span>
         </div>
@@ -173,10 +173,10 @@ export default function StatPanel({ pet, mood }: Props) {
                   flexShrink:    0,
                 }}
               >
-                <span style={{ fontSize: 12, color: '#3a5a7a', lineHeight: 1 }}>{b.icon}</span>
+                <span style={{ fontSize: 13, color: '#3a5a7a', lineHeight: 1 }}>{b.icon}</span>
                 <span
                   style={{
-                    fontSize:      10,
+                    fontSize:      12,
                     letterSpacing: '0.07em',
                     color:         '#5a7a9a',
                     textTransform: 'uppercase',
@@ -194,7 +194,7 @@ export default function StatPanel({ pet, mood }: Props) {
                 style={{
                   width:     28,
                   textAlign: 'right',
-                  fontSize:  11,
+                  fontSize:  12,
                   color:     '#6a8aaa',
                   flexShrink: 0,
                 }}

@@ -120,7 +120,7 @@ const UsernameScreen: React.FC<Props> = ({ onSubmit }) => {
         }
 
         .void-subtitle {
-          font-size: 0.78rem;
+          font-size: 0.88rem;
           color: #5a7a9a;
           letter-spacing: 0.12em;
           margin: 0 0 48px 0;
@@ -130,7 +130,7 @@ const UsernameScreen: React.FC<Props> = ({ onSubmit }) => {
 
         .void-label {
           width: 100%;
-          font-size: 0.7rem;
+          font-size: 0.82rem;
           letter-spacing: 0.18em;
           color: #00d4ff;
           text-transform: uppercase;
@@ -172,7 +172,7 @@ const UsernameScreen: React.FC<Props> = ({ onSubmit }) => {
 
         .void-error {
           width: 100%;
-          font-size: 0.68rem;
+          font-size: 0.82rem;
           color: #ff3366;
           letter-spacing: 0.1em;
           margin-top: 6px;
@@ -182,8 +182,8 @@ const UsernameScreen: React.FC<Props> = ({ onSubmit }) => {
 
         .void-hint {
           width: 100%;
-          font-size: 0.64rem;
-          color: #2e4060;
+          font-size: 0.82rem;
+          color: #4a6080;
           letter-spacing: 0.06em;
           line-height: 1.6;
           margin-top: 14px;

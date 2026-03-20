@@ -76,7 +76,7 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
 
   const subtitleStyle: React.CSSProperties = {
     color: '#3a5060',
-    fontSize: '0.72em',
+    fontSize: '0.9em',
     letterSpacing: '0.1em',
     marginTop: 2,
   };

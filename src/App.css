@@ -267,7 +267,7 @@ html, body {
 
 /* ── Mood badge ─────────────────────────────────────────────────────────── */
 .mood-badge {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--accent);
@@ -283,7 +283,7 @@ html, body {
   border-radius: var(--radius);
   padding: 6px 14px;
   color: var(--red);
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 1px;
   text-align: center;
   animation: alert-pulse 0.9s ease-in-out infinite;
@@ -337,12 +337,12 @@ html, body {
 }
 
 .action-icon  { font-size: 20px; line-height: 1; }
-.action-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.action-label { font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
 .action-cool  {
   position: absolute;
   top: 4px;
   right: 6px;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--red);
   letter-spacing: 0;
 }

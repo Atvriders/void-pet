@@ -118,7 +118,7 @@ export default function ActionBar({ pet, now, dispatch }: Props) {
         }
 
         .action-label {
-          font-size: 10px;
+          font-size: 12px;
           letter-spacing: 0.12em;
           font-weight: 600;
           color: #8ab4f8;
@@ -126,7 +126,7 @@ export default function ActionBar({ pet, now, dispatch }: Props) {
         }
 
         .action-sublabel {
-          font-size: 10px;
+          font-size: 12px;
           letter-spacing: 0.08em;
           color: #4a6090;
           font-style: italic;
@@ -137,7 +137,7 @@ export default function ActionBar({ pet, now, dispatch }: Props) {
           position: absolute;
           top: 3px;
           right: 5px;
-          font-size: 9px;
+          font-size: 11px;
           color: #f87171;
           letter-spacing: 0.04em;
           line-height: 1;
