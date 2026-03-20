@@ -66,6 +66,7 @@ export function reducer(state: PetState, action: Action): PetState {
 
     case 'TICK': {
       if (state.stage === 'corrupted' && state.recoverNeeded > 0) return state;
+      if (!Number.isFinite(action.now)) return state; // guard against NaN/Infinity
 
       const elapsed = Math.min((action.now - state.lastTick) / 1000, 300); // cap at 5min per tick
       if (elapsed <= 0) return { ...state, lastTick: action.now };
@@ -93,14 +94,14 @@ export function reducer(state: PetState, action: Action): PetState {
                        (heat < 40   ? 1 : 0) + (power > 40    ? 1 : 0);
       careScore += careGain * (elapsed / 60); // accumulate scaled to per-minute
 
-      // Corruption check
+      // Corruption check — accumulate elapsed seconds in critical state (not raw tick count)
       const critical = signal < 5 && coherence < 5 && heat > 85;
-      corruptTicks = critical ? corruptTicks + 1 : 0;
+      corruptTicks = critical ? corruptTicks + elapsed : 0;
 
       let log = state.log;
       let newStage = state.stage;
 
-      if (corruptTicks > 20 && state.stage !== 'corrupted') {
+      if (corruptTicks >= 20 && state.stage !== 'corrupted') {
         newStage = 'corrupted';
         state = { ...state, recoverNeeded: 5 };
         log = addLog(log, '⚠ CRITICAL FAILURE — entity fragmenting. Run DEFRAG ×5 to recover.');
@@ -184,7 +185,7 @@ export function reducer(state: PetState, action: Action): PetState {
         };
         if (left === 0) {
           newState = { ...newState, stage: 'seed', signal: 40, coherence: 40, heat: 50,
-            power: 40, corruptTicks: 0 };
+            power: 40, corruptTicks: 0, sleeping: false };
         }
       }
       return newState;

@@ -13,7 +13,7 @@ export interface PetState {
   careScore:  number;   // lifetime care points
   ascensions: number;   // how many times reached ascendant
 
-  corruptTicks: number;  // consecutive ticks in critical state
+  corruptTicks: number;  // elapsed seconds in consecutive critical state (≥20 triggers corruption)
   recoverNeeded: number; // defrag actions still needed to recover
 
   // Cooldowns (unix timestamp when cooldown expires)
