@@ -173,7 +173,7 @@ export default function StatPanel({ pet, mood }: Props) {
                   flexShrink:    0,
                 }}
               >
-                <span style={{ fontSize: 13, color: '#3a5a7a', lineHeight: 1 }}>{b.icon}</span>
+                <span style={{ fontSize: 13, color: '#3a5a7a', lineHeight: 1, width: 16, textAlign: 'center', flexShrink: 0 }}>{b.icon}</span>
                 <span
                   style={{
                     fontSize:      12,
