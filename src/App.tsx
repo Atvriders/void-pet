@@ -206,7 +206,7 @@ export default function App() {
 
       {/* ── Corruption alert ── */}
       {petState.stage === 'corrupted' && petState.recoverNeeded > 0 && (
-        <div className="corruption-alert">
+        <div className="corruption-alert" role="alert" aria-live="assertive">
           &#x26A0; CORRUPTION — run DEFRAG &#xD7;{petState.recoverNeeded} to recover
         </div>
       )}

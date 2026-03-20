@@ -127,7 +127,7 @@ export default function StatPanel({ pet, mood }: Props) {
         border:      '1px solid #1a2240',
         borderRadius: 12,
         padding:     16,
-        fontFamily:  'monospace',
+        fontFamily:  "'Share Tech Mono', 'Courier New', monospace",
         boxSizing:   'border-box',
         display:     'flex',
         flexDirection: 'column',

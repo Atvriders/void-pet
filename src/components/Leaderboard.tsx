@@ -94,7 +94,7 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
   const thStyle: React.CSSProperties = {
     textAlign: 'left',
     padding: '7px 10px',
-    color: '#2a4a5a',
+    color: '#4a7a9a',
     fontWeight: 700,
     letterSpacing: '0.12em',
     fontSize: '0.8em',
@@ -110,7 +110,7 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
 
   const emptyStyle: React.CSSProperties = {
     textAlign: 'center',
-    color: '#2a4a5a',
+    color: '#4a7a9a',
     letterSpacing: '0.14em',
     padding: '60px 0',
     fontSize: '0.9em',
@@ -118,7 +118,7 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
   };
 
   return (
-    <div style={overlayStyle}>
+    <div style={overlayStyle} role="dialog" aria-modal="true" aria-label="Leaderboard">
       <div style={panelStyle}>
         <div style={headerStyle}>
           <div>
