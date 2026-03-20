@@ -6,13 +6,20 @@ services:
     volumes:
       - void_data:/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3005/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   void-pet:
     image: ghcr.io/atvriders/void-pet:latest
     ports:
       - "3004:80"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

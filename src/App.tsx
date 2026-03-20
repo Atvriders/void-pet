@@ -10,6 +10,7 @@ import { getMood, MOOD_HUE, MOOD_LABEL } from './game/mood';
 import {
   getStoredUsername,
   setStoredUsername,
+  removeStoredUsername,
   loadPetFromServer,
   savePetToServer,
   deletePetFromServer,
@@ -24,11 +25,13 @@ export default function App() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showRename, setShowRename]         = useState(false);
   const [renameInput, setRenameInput]       = useState('');
+  const [isLoaded, setIsLoaded]             = useState(false);
 
   // ── Pet state ────────────────────────────────────────────────────────────
   const [petState, dispatch] = useReducer(reducer, INITIAL_STATE);
   const [now, setNow]        = useState(Date.now);
   const rafRef               = useRef(0);
+  const lastScoreRef         = useRef<number>(-1);
 
   // ── On mount: if we already have a stored username, load that pet ─────────
   useEffect(() => {
@@ -37,13 +40,14 @@ export default function App() {
         if (saved) {
           dispatch({ type: 'LOAD', state: saved });
         }
+        setIsLoaded(true);
       });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Game loop — RAF driven ───────────────────────────────────────────────
   useEffect(() => {
-    if (!username) return; // don't run loop on username screen
+    if (!username || !isLoaded) return; // don't run loop until pet is loaded from server
     let last = performance.now();
     function loop(ts: number) {
       if (ts - last >= 1000) {
@@ -56,21 +60,26 @@ export default function App() {
     }
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [username]);
+  }, [username, isLoaded]);
 
   // ── Persist pet on every state change ────────────────────────────────────
   useEffect(() => {
-    if (!username) return;
+    if (!username || !isLoaded) return;
     savePetToServer(username, petState);
-    submitScoreToServer({
-      username,
-      careScore:  petState.careScore,
-      stage:      petState.stage,
-      age:        petState.age,
-      ascensions: petState.ascensions,
-      date:       Date.now(),
-    });
-  }, [username, petState]);
+    // Only submit score when the floored value increases — avoids spamming the
+    // leaderboard endpoint on every tick (~1/sec) while still recording new highs.
+    if (Math.floor(petState.careScore) > Math.floor(lastScoreRef.current)) {
+      lastScoreRef.current = petState.careScore;
+      submitScoreToServer({
+        username,
+        careScore:  petState.careScore,
+        stage:      petState.stage,
+        age:        petState.age,
+        ascensions: petState.ascensions,
+        date:       Date.now(),
+      });
+    }
+  }, [username, petState, isLoaded]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   async function handleUsernameSubmit(name: string) {
@@ -81,6 +90,7 @@ export default function App() {
     } else {
       dispatch({ type: 'LOAD', state: { ...INITIAL_STATE, log: makeBootLog() } });
     }
+    setIsLoaded(true);
     setUsername(name);
   }
 
@@ -98,8 +108,10 @@ export default function App() {
       if (username) {
         deletePetFromServer(username);
         removeScoreFromServer(username);
-        setStoredUsername(''); // clear persisted username so next session starts fresh
+        removeStoredUsername();
       }
+      lastScoreRef.current = -1;
+      setIsLoaded(false);
       dispatch({ type: 'RESET' });
       setUsername(null); // return to username screen
     }

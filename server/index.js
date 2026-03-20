@@ -63,11 +63,22 @@ app.get('/api/leaderboard', (req, res) => {
 app.post('/api/scores', (req, res) => {
   try {
     const { username, careScore, stage, age, ascensions, date } = req.body;
+    if (!username || typeof username !== 'string' || username.trim() === '') {
+      return res.status(400).json({ error: 'invalid username' });
+    }
+    const careScoreNum  = Number(careScore);
+    const ageNum        = Number(age);
+    const ascensionsNum = Number(ascensions);
+    const dateNum       = Number(date);
+    if (!Number.isFinite(careScoreNum) || !Number.isFinite(ageNum) ||
+        !Number.isFinite(ascensionsNum) || !Number.isFinite(dateNum)) {
+      return res.status(400).json({ error: 'invalid numeric fields' });
+    }
     const existing = db.prepare('SELECT care_score FROM leaderboard WHERE username = ?').get(username);
-    if (!existing || careScore > existing.care_score) {
+    if (!existing || careScoreNum > existing.care_score) {
       db.prepare(
         'INSERT OR REPLACE INTO leaderboard (username, care_score, stage, age, ascensions, date) VALUES (?, ?, ?, ?, ?, ?)'
-      ).run(username, careScore, stage, age, ascensions, date);
+      ).run(username, careScoreNum, stage || '', ageNum, ascensionsNum, dateNum);
     }
     res.json({ ok: true });
   } catch (err) {

@@ -23,10 +23,17 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     fetchLeaderboard().then(data => {
-      setEntries([...data].sort((a, b) => b.careScore - a.careScore).slice(0, 50));
+      if (data === null) {
+        setFetchError(true);
+      } else {
+        setEntries([...data].sort((a, b) => b.careScore - a.careScore).slice(0, 50));
+      }
+      setLoading(false);
     });
   }, []);
 
@@ -126,7 +133,7 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
         <div style={headerStyle}>
           <div>
             <div style={titleStyle}>Leaderboard</div>
-            <div style={subtitleStyle}>(device-local scores)</div>
+            <div style={subtitleStyle}>(global scores)</div>
           </div>
           <button
             style={closeBtnStyle}
@@ -145,7 +152,11 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
           </button>
         </div>
 
-        {entries.length === 0 ? (
+        {loading ? (
+          <div style={emptyStyle}>LOADING...</div>
+        ) : fetchError ? (
+          <div style={emptyStyle}>FAILED TO LOAD LEADERBOARD</div>
+        ) : entries.length === 0 ? (
           <div style={emptyStyle}>NO ENTITIES RECORDED YET</div>
         ) : (
           <table style={tableStyle}>

@@ -18,6 +18,12 @@ export function setStoredUsername(username: string): void {
   } catch {}
 }
 
+export function removeStoredUsername(): void {
+  try {
+    localStorage.removeItem(USERNAME_KEY);
+  } catch {}
+}
+
 // Pet save/load (server API)
 
 export async function loadPetFromServer(username: string): Promise<PetState | null> {
@@ -46,13 +52,13 @@ export function deletePetFromServer(username: string): void {
 
 // Leaderboard (server API)
 
-export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
+export async function fetchLeaderboard(): Promise<LeaderboardEntry[] | null> {
   try {
     const res = await fetch('/api/leaderboard');
-    if (!res.ok) return [];
+    if (!res.ok) return null;
     return (await res.json()) as LeaderboardEntry[];
   } catch {
-    return [];
+    return null;
   }
 }
 

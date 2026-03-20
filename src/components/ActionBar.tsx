@@ -47,7 +47,7 @@ const ACTIONS: Btn[] = [
     icon:     '⏾',
     action:   { type: 'HIBERNATE' },
     tooltip:  'Toggle sleep. Restores Power, cools Heat; slows (not pauses) stat decay.',
-    ready:    (p) => p.stage !== 'corrupted' || p.recoverNeeded === 0,
+    ready:    (p) => p.stage !== 'corrupted',
   },
   {
     label:    'OVERCLOCK',

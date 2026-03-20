@@ -70,7 +70,9 @@ export function reducer(state: PetState, action: Action): PetState {
   switch (action.type) {
 
     case 'TICK': {
-      if (state.stage === 'corrupted' && state.recoverNeeded > 0) return state;
+      if (state.stage === 'corrupted' && state.recoverNeeded > 0) {
+        return { ...state, lastTick: action.now }; // advance clock so recovery doesn't cause burst decay
+      }
       if (!Number.isFinite(action.now)) return state; // guard against NaN/Infinity
 
       const elapsed = Math.min((action.now - state.lastTick) / 1000, 300); // cap at 5min per tick
@@ -239,9 +241,15 @@ export function reducer(state: PetState, action: Action): PetState {
         careScore: Math.max(0, Number(s.careScore) || 0),
         age:       Math.max(0, Number(s.age)       || 0),
       };
+      // Sanitise cooldown fields — a saved Infinity/NaN would permanently lock actions
+      const safeCooldowns = {
+        coolSimulate:  Number.isFinite(Number(s.coolSimulate))  ? Number(s.coolSimulate)  : 0,
+        coolDefrag:    Number.isFinite(Number(s.coolDefrag))    ? Number(s.coolDefrag)    : 0,
+        coolOverclock: Number.isFinite(Number(s.coolOverclock)) ? Number(s.coolOverclock) : 0,
+      };
       // lastTick reset to now intentionally suppresses offline catch-up:
       // the pet only decays while the tab is open (active-play design).
-      return { ...INITIAL_STATE, ...s, ...safe, lastTick: Date.now() };
+      return { ...INITIAL_STATE, ...s, ...safe, ...safeCooldowns, lastTick: Date.now() };
     }
 
     default:
