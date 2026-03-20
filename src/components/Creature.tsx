@@ -5,7 +5,8 @@ import { MOOD_HUE } from '../game/mood';
 interface Props { pet: PetState; mood: Mood }
 
 const TWO_PI = Math.PI * 2;
-const CX = 160, CY = 160; // canvas centre
+const CSS_SIZE = 480;
+const CX = 240, CY = 240; // canvas centre (CSS pixels)
 
 // ── Drawing helpers ────────────────────────────────────────────────────────
 
@@ -29,7 +30,7 @@ function orb(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, h
 
 function ring(
   ctx: CanvasRenderingContext2D, cx: number, cy: number,
-  rx: number, ry: number, tilt: number, hue: number, alpha: number, width = 1.5
+  rx: number, ry: number, tilt: number, hue: number, alpha: number, width = 2.25
 ) {
   ctx.save();
   ctx.translate(cx, cy);
@@ -44,7 +45,7 @@ function ring(
 
 function particle(
   ctx: CanvasRenderingContext2D, cx: number, cy: number,
-  orbitR: number, angle: number, hue: number, r = 3
+  orbitR: number, angle: number, hue: number, r = 4.5
 ) {
   const x = cx + Math.cos(angle) * orbitR;
   const y = cy + Math.sin(angle) * orbitR;
@@ -66,146 +67,317 @@ function hexagon(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: numbe
   }
   ctx.closePath();
   ctx.strokeStyle = `hsla(${hue}, 100%, 70%, 0.4)`;
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 }
 
-function glitchSlices(ctx: CanvasRenderingContext2D, t: number, hue: number) {
+function glitchSlices(ctx: CanvasRenderingContext2D, t: number, hue: number, canvasW: number, canvasH: number) {
   const n = 3;
   for (let i = 0; i < n; i++) {
     const seed = Math.sin(t * 0.003 + i * 2.7) * 0.5 + 0.5;
     if (seed < 0.6) continue;
-    const y  = (seed * 320) | 0;
-    const h  = (seed * 8 + 2) | 0;
-    const dx = (Math.sin(t * 0.007 + i) * 20) | 0;
-    const img = ctx.getImageData(0, y, 320, h);
+    const y  = (seed * canvasH) | 0;
+    const h  = (seed * 12 + 3) | 0;
+    const dx = (Math.sin(t * 0.007 + i) * 30) | 0;
+    const img = ctx.getImageData(0, y, canvasW, h);
     ctx.putImageData(img, dx, y);
   }
   ctx.fillStyle = `hsla(${hue}, 100%, 60%, 0.05)`;
-  ctx.fillRect(0, 0, 320, 320);
+  ctx.fillRect(0, 0, canvasW, canvasH);
+}
+
+// ── Face drawing ───────────────────────────────────────────────────────────
+
+function drawFace(
+  ctx: CanvasRenderingContext2D,
+  cx: number, cy: number,
+  orbR: number,
+  hue: number,
+  mood: Mood
+) {
+  const sleeping    = mood === 'sleeping';
+  const sad         = mood === 'sad';
+  const happy       = mood === 'happy';
+  const overheating = mood === 'overheating';
+  const corrupted   = mood === 'corrupted';
+
+  const eyeBaseR  = orbR * 0.22;
+  const eyeR      = happy ? eyeBaseR * 1.12 : eyeBaseR;
+  const pupilR    = orbR * 0.12;
+
+  const leftEyeX  = cx - orbR * 0.35;
+  const rightEyeX = cx + orbR * 0.35;
+  const eyeY      = cy - orbR * 0.2;
+
+  // Pupil offset for moods
+  const pupilDY = (sad || corrupted) ? pupilR * 0.5 : 0;
+
+  // Pupil colour
+  const pupilColor = overheating
+    ? 'hsl(0, 100%, 55%)'
+    : happy
+      ? `hsl(${hue}, 100%, 80%)`
+      : `hsl(${hue}, 90%, 65%)`;
+
+  ctx.save();
+
+  if (sleeping) {
+    // Closed eyes: horizontal lines
+    ctx.strokeStyle = `hsla(${hue}, 60%, 80%, 0.9)`;
+    ctx.lineWidth   = orbR * 0.045;
+    ctx.lineCap     = 'round';
+    [-1, 1].forEach(side => {
+      const ex = cx + side * orbR * 0.35;
+      ctx.beginPath();
+      ctx.moveTo(ex - eyeR * 0.7, eyeY);
+      ctx.lineTo(ex + eyeR * 0.7, eyeY);
+      ctx.stroke();
+    });
+  } else {
+    // Eye sockets (white)
+    [leftEyeX, rightEyeX].forEach(ex => {
+      // White sclera
+      ctx.beginPath(); ctx.arc(ex, eyeY, eyeR, 0, TWO_PI);
+      ctx.fillStyle = overheating
+        ? 'hsla(30, 100%, 92%, 0.92)'
+        : 'hsla(0, 0%, 96%, 0.92)';
+      ctx.fill();
+
+      // Stressed crease lines for overheating
+      if (overheating) {
+        ctx.strokeStyle = 'hsla(0, 80%, 55%, 0.5)';
+        ctx.lineWidth   = orbR * 0.025;
+        // Furrowed brow line above each eye
+        const browY = eyeY - eyeR * 0.85;
+        ctx.beginPath();
+        ctx.moveTo(ex - eyeR * 0.6, browY + eyeR * 0.2);
+        ctx.lineTo(ex,              browY);
+        ctx.lineTo(ex + eyeR * 0.6, browY + eyeR * 0.2);
+        ctx.stroke();
+      }
+
+      // Pupil
+      ctx.beginPath(); ctx.arc(ex, eyeY + pupilDY, pupilR, 0, TWO_PI);
+      ctx.fillStyle = pupilColor;
+      ctx.fill();
+
+      // Pupil shine
+      ctx.beginPath(); ctx.arc(ex - pupilR * 0.3, eyeY + pupilDY - pupilR * 0.3, pupilR * 0.28, 0, TWO_PI);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      ctx.fill();
+    });
+  }
+
+  // ── Mouth ──
+  const mouthY   = cy + orbR * 0.15;
+  const mouthHW  = orbR * 0.30; // half-width
+  const mouthCtrlX = cx;
+
+  ctx.lineWidth = orbR * 0.05;
+  ctx.lineCap   = 'round';
+
+  if (sleeping) {
+    // Small peaceful closed curve
+    ctx.strokeStyle = `hsla(${hue}, 60%, 75%, 0.8)`;
+    ctx.beginPath();
+    ctx.moveTo(cx - mouthHW * 0.6, mouthY + orbR * 0.04);
+    ctx.quadraticCurveTo(mouthCtrlX, mouthY + orbR * 0.18, cx + mouthHW * 0.6, mouthY + orbR * 0.04);
+    ctx.stroke();
+
+  } else if (happy) {
+    // Smile
+    ctx.strokeStyle = `hsla(${hue}, 80%, 80%, 0.95)`;
+    ctx.beginPath();
+    ctx.moveTo(cx - mouthHW, mouthY);
+    ctx.quadraticCurveTo(mouthCtrlX, mouthY + orbR * 0.45, cx + mouthHW, mouthY);
+    ctx.stroke();
+
+  } else if (sad || mood === 'tired') {
+    // Frown
+    ctx.strokeStyle = `hsla(${hue}, 60%, 65%, 0.85)`;
+    ctx.beginPath();
+    ctx.moveTo(cx - mouthHW, mouthY + orbR * 0.25);
+    ctx.quadraticCurveTo(mouthCtrlX, mouthY - orbR * 0.12, cx + mouthHW, mouthY + orbR * 0.25);
+    ctx.stroke();
+
+  } else if (overheating) {
+    // Wavy stressed line
+    ctx.strokeStyle = 'hsla(0, 90%, 65%, 0.9)';
+    ctx.beginPath();
+    const waveY = mouthY + orbR * 0.1;
+    ctx.moveTo(cx - mouthHW, waveY);
+    ctx.bezierCurveTo(
+      cx - mouthHW * 0.5, waveY - orbR * 0.1,
+      cx,                  waveY + orbR * 0.1,
+      cx + mouthHW * 0.5,  waveY - orbR * 0.1
+    );
+    ctx.lineTo(cx + mouthHW, waveY);
+    ctx.stroke();
+
+  } else if (corrupted) {
+    // Jagged/glitchy line
+    ctx.strokeStyle = 'hsla(5, 100%, 60%, 0.9)';
+    ctx.lineWidth   = orbR * 0.045;
+    ctx.beginPath();
+    const jY = mouthY + orbR * 0.1;
+    ctx.moveTo(cx - mouthHW, jY);
+    ctx.lineTo(cx - mouthHW * 0.5, jY - orbR * 0.12);
+    ctx.lineTo(cx - mouthHW * 0.1, jY + orbR * 0.1);
+    ctx.lineTo(cx + mouthHW * 0.2,  jY - orbR * 0.08);
+    ctx.lineTo(cx + mouthHW * 0.6,  jY + orbR * 0.05);
+    ctx.lineTo(cx + mouthHW, jY);
+    ctx.stroke();
+
+  } else {
+    // Neutral: straight horizontal line
+    ctx.strokeStyle = `hsla(${hue}, 50%, 72%, 0.8)`;
+    ctx.beginPath();
+    ctx.moveTo(cx - mouthHW, mouthY + orbR * 0.12);
+    ctx.lineTo(cx + mouthHW, mouthY + orbR * 0.12);
+    ctx.stroke();
+  }
+
+  ctx.restore();
 }
 
 // ── Stage drawers ──────────────────────────────────────────────────────────
+// All radii scaled ~1.5× from original 320px canvas → 480px canvas
 
-function drawSeed(ctx: CanvasRenderingContext2D, t: number, hue: number, bright: number) {
+function drawSeed(ctx: CanvasRenderingContext2D, t: number, hue: number, bright: number, mood: Mood) {
   const pulse = 1 + Math.sin(t * 0.0018) * 0.12;
-  orb(ctx, CX, CY, 22 * pulse, hue, bright);
+  const orbR  = 33 * pulse;
+  orb(ctx, CX, CY, orbR, hue, bright);
+  drawFace(ctx, CX, CY, orbR, hue, mood);
 }
 
-function drawSprite(ctx: CanvasRenderingContext2D, t: number, hue: number, bright: number) {
+function drawSprite(ctx: CanvasRenderingContext2D, t: number, hue: number, bright: number, mood: Mood) {
   const pulse = 1 + Math.sin(t * 0.002) * 0.08;
   const spin  = t * 0.0008;
-  orb(ctx, CX, CY, 32 * pulse, hue, bright);
-  ring(ctx, CX, CY, 52, 18, spin, hue, 0.5 * bright);
-  hexagon(ctx, CX, CY, 58, hue + 20);
+  const orbR  = 48 * pulse;
+  orb(ctx, CX, CY, orbR, hue, bright);
+  ring(ctx, CX, CY, 78, 27, spin, hue, 0.5 * bright);
+  hexagon(ctx, CX, CY, 87, hue + 20);
   for (let i = 0; i < 4; i++) {
-    particle(ctx, CX, CY, 65, spin * 1.5 + (i / 4) * TWO_PI, hue + i * 15, 2.5);
+    particle(ctx, CX, CY, 97.5, spin * 1.5 + (i / 4) * TWO_PI, hue + i * 15, 3.75);
   }
+  drawFace(ctx, CX, CY, orbR, hue, mood);
 }
 
-function drawEntity(ctx: CanvasRenderingContext2D, t: number, hue: number, bright: number) {
+function drawEntity(ctx: CanvasRenderingContext2D, t: number, hue: number, bright: number, mood: Mood) {
   const pulse = 1 + Math.sin(t * 0.002) * 0.07;
   const s1    = t * 0.0007;
   const s2    = -t * 0.0011;
-  orb(ctx, CX, CY, 42 * pulse, hue, bright);
-  ring(ctx, CX, CY, 65, 22, s1, hue,       0.55 * bright);
-  ring(ctx, CX, CY, 65, 22, s2 + 1, hue + 40, 0.40 * bright);
-  hexagon(ctx, CX, CY, 75, hue + 10);
+  const orbR  = 63 * pulse;
+  orb(ctx, CX, CY, orbR, hue, bright);
+  ring(ctx, CX, CY, 97.5, 33, s1, hue,        0.55 * bright);
+  ring(ctx, CX, CY, 97.5, 33, s2 + 1, hue + 40, 0.40 * bright);
+  hexagon(ctx, CX, CY, 112.5, hue + 10);
   for (let i = 0; i < 6; i++) {
-    particle(ctx, CX, CY, 80, s1 * 1.8 + (i / 6) * TWO_PI, hue + i * 20, 3);
+    particle(ctx, CX, CY, 120, s1 * 1.8 + (i / 6) * TWO_PI, hue + i * 20, 4.5);
   }
   // Inner dash ring
-  ctx.setLineDash([3, 6]);
-  ring(ctx, CX, CY, 50, 50, s1 * 0.5, hue + 20, 0.20 * bright, 1);
+  ctx.setLineDash([4.5, 9]);
+  ring(ctx, CX, CY, 75, 75, s1 * 0.5, hue + 20, 0.20 * bright, 1.5);
   ctx.setLineDash([]);
+  drawFace(ctx, CX, CY, orbR, hue, mood);
 }
 
-function drawApex(ctx: CanvasRenderingContext2D, t: number, hue: number, bright: number) {
+function drawApex(ctx: CanvasRenderingContext2D, t: number, hue: number, bright: number, mood: Mood) {
   const pulse = 1 + Math.sin(t * 0.0018) * 0.06;
   const s1    =  t * 0.0006;
   const s2    = -t * 0.0009;
   const s3    =  t * 0.0013;
-  orb(ctx, CX, CY, 56 * pulse, hue, bright);
-  ring(ctx, CX, CY, 82, 28, s1, hue,       0.60 * bright, 1.5);
-  ring(ctx, CX, CY, 82, 28, s2 + 1, hue + 50, 0.45 * bright, 1);
-  ring(ctx, CX, CY, 95, 95, s3 * 0.3, hue + 20, 0.15 * bright, 1);
-  hexagon(ctx, CX, CY, 100, hue + 15);
-  ctx.setLineDash([2, 8]);
-  ring(ctx, CX, CY, 62, 62, -s1 * 0.6, hue + 30, 0.18 * bright, 1);
+  const orbR  = 84 * pulse;
+  orb(ctx, CX, CY, orbR, hue, bright);
+  ring(ctx, CX, CY, 123, 42, s1, hue,        0.60 * bright, 2.25);
+  ring(ctx, CX, CY, 123, 42, s2 + 1, hue + 50, 0.45 * bright, 1.5);
+  ring(ctx, CX, CY, 142.5, 142.5, s3 * 0.3, hue + 20, 0.15 * bright, 1.5);
+  hexagon(ctx, CX, CY, 150, hue + 15);
+  ctx.setLineDash([3, 12]);
+  ring(ctx, CX, CY, 93, 93, -s1 * 0.6, hue + 30, 0.18 * bright, 1.5);
   ctx.setLineDash([]);
   for (let i = 0; i < 8; i++) {
-    particle(ctx, CX, CY, 100, s1 * 2 + (i / 8) * TWO_PI, hue + i * 25, 3.5);
+    particle(ctx, CX, CY, 150, s1 * 2 + (i / 8) * TWO_PI, hue + i * 25, 5.25);
   }
   // Occasional lightning arc
   if (Math.sin(t * 0.003) > 0.85) {
     ctx.save();
     ctx.globalAlpha = (Math.sin(t * 0.003) - 0.85) / 0.15;
     ctx.strokeStyle = `hsl(${hue}, 100%, 90%)`;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     const a1 = Math.random() * TWO_PI, a2 = a1 + Math.PI + Math.random() * 0.8;
-    ctx.moveTo(CX + Math.cos(a1) * 56, CY + Math.sin(a1) * 56);
-    ctx.lineTo(CX + Math.cos(a1 + 0.4) * 90, CY + Math.sin(a1 + 0.4) * 90);
-    ctx.lineTo(CX + Math.cos(a2) * 56, CY + Math.sin(a2) * 56);
+    ctx.moveTo(CX + Math.cos(a1) * 84, CY + Math.sin(a1) * 84);
+    ctx.lineTo(CX + Math.cos(a1 + 0.4) * 135, CY + Math.sin(a1 + 0.4) * 135);
+    ctx.lineTo(CX + Math.cos(a2) * 84, CY + Math.sin(a2) * 84);
     ctx.stroke();
     ctx.restore();
   }
+  drawFace(ctx, CX, CY, orbR, hue, mood);
 }
 
-function drawAscendant(ctx: CanvasRenderingContext2D, t: number, hue: number, bright: number) {
+function drawAscendant(ctx: CanvasRenderingContext2D, t: number, hue: number, bright: number, mood: Mood) {
   // Colour cycling
   const h = (hue + t * 0.03) % 360;
   const pulse = 1 + Math.sin(t * 0.002) * 0.05;
   const s1 =  t * 0.0005;
   const s2 = -t * 0.0008;
   const s3 =  t * 0.0012;
+  const orbR = 102 * pulse;
 
   // Wide background aura
-  const bg = ctx.createRadialGradient(CX, CY, 10, CX, CY, 150);
+  const bg = ctx.createRadialGradient(CX, CY, 15, CX, CY, 225);
   bg.addColorStop(0,   `hsla(${h}, 100%, 50%, ${0.08 * bright})`);
   bg.addColorStop(0.5, `hsla(${h + 60}, 100%, 50%, ${0.04 * bright})`);
   bg.addColorStop(1,   'transparent');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, 320, 320);
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, CSS_SIZE, CSS_SIZE);
 
-  orb(ctx, CX, CY, 68 * pulse, h, bright * 1.1);
-  ring(ctx, CX, CY,  95, 32, s1,       h,       0.65 * bright, 2);
-  ring(ctx, CX, CY,  95, 32, s2 + 1,   h + 60,  0.55 * bright, 1.5);
-  ring(ctx, CX, CY, 110, 110, s3 * 0.2, h + 120, 0.20 * bright, 1);
-  ring(ctx, CX, CY, 130, 130, -s3 * 0.15, h + 180, 0.12 * bright, 1);
-  hexagon(ctx, CX, CY, 118, h + 20);
-  hexagon(ctx, CX, CY, 82,  h + 40);
-  ctx.setLineDash([2, 5]);
-  ring(ctx, CX, CY, 72, 72, s2 * 0.5, h + 90, 0.18 * bright, 1);
+  orb(ctx, CX, CY, orbR, h, bright * 1.1);
+  ring(ctx, CX, CY, 142.5, 48, s1,         h,        0.65 * bright, 3);
+  ring(ctx, CX, CY, 142.5, 48, s2 + 1,     h + 60,   0.55 * bright, 2.25);
+  ring(ctx, CX, CY, 165,   165, s3 * 0.2,  h + 120,  0.20 * bright, 1.5);
+  ring(ctx, CX, CY, 195,   195, -s3 * 0.15, h + 180, 0.12 * bright, 1.5);
+  hexagon(ctx, CX, CY, 177, h + 20);
+  hexagon(ctx, CX, CY, 123, h + 40);
+  ctx.setLineDash([3, 7.5]);
+  ring(ctx, CX, CY, 108, 108, s2 * 0.5, h + 90, 0.18 * bright, 1.5);
   ctx.setLineDash([]);
   for (let i = 0; i < 12; i++) {
-    particle(ctx, CX, CY, 115, s1 * 2.5 + (i / 12) * TWO_PI, h + i * 30, 3.5);
+    particle(ctx, CX, CY, 172.5, s1 * 2.5 + (i / 12) * TWO_PI, h + i * 30, 5.25);
   }
   // Inner spiral dots
   for (let i = 0; i < 6; i++) {
-    particle(ctx, CX, CY, 80, s2 * 3 + (i / 6) * TWO_PI, h + 180 + i * 20, 2);
+    particle(ctx, CX, CY, 120, s2 * 3 + (i / 6) * TWO_PI, h + 180 + i * 20, 3);
   }
+  drawFace(ctx, CX, CY, orbR, h, mood);
 }
 
-function drawCorrupted(ctx: CanvasRenderingContext2D, t: number, stage: Stage) {
+function drawCorrupted(ctx: CanvasRenderingContext2D, t: number, _stage: Stage, mood: Mood, canvasW: number, canvasH: number) {
   const hue    = 5;
   const bright = 0.7;
   const pulse  = 1 + Math.sin(t * 0.004) * 0.15;
-  // Use a simpler version of the current stage
-  orb(ctx, CX, CY, 30 * pulse, hue, bright);
-  ring(ctx, CX, CY, 50, 18, t * 0.001, hue, 0.4, 1.5);
+  const orbR   = 45 * pulse;
+  orb(ctx, CX, CY, orbR, hue, bright);
+  ring(ctx, CX, CY, 75, 27, t * 0.001, hue, 0.4, 2.25);
   ctx.save();
   ctx.globalAlpha = 0.6;
-  glitchSlices(ctx, t, hue);
+  glitchSlices(ctx, t, hue, canvasW, canvasH);
   ctx.restore();
+  drawFace(ctx, CX, CY, orbR, hue, mood);
 }
 
 // ── Main draw dispatcher ───────────────────────────────────────────────────
 
 function drawFrame(
-  ctx: CanvasRenderingContext2D, t: number,
-  stage: Stage, mood: Mood, hue: number
+  ctx: CanvasRenderingContext2D,
+  t: number,
+  stage: Stage,
+  mood: Mood,
+  hue: number,
+  canvasW: number,
+  canvasH: number
 ) {
-  ctx.clearRect(0, 0, 320, 320);
+  ctx.clearRect(0, 0, canvasW, canvasH);
 
   const sleeping    = mood === 'sleeping';
   const corrupted   = stage === 'corrupted';
@@ -217,15 +389,16 @@ function drawFrame(
     : mood === 'happy' ? 1.15
     : 1.0;
 
-  if (corrupted) { drawCorrupted(ctx, t, stage); }
-  else {
+  if (corrupted) {
+    drawCorrupted(ctx, t, stage, mood, canvasW, canvasH);
+  } else {
     const drawT = sleeping ? t * 0.3 : overheating ? t * 1.6 : t;
     switch (stage) {
-      case 'seed':       drawSeed(ctx, drawT, hue, bright);       break;
-      case 'sprite':     drawSprite(ctx, drawT, hue, bright);     break;
-      case 'entity':     drawEntity(ctx, drawT, hue, bright);     break;
-      case 'apex':       drawApex(ctx, drawT, hue, bright);       break;
-      case 'ascendant':  drawAscendant(ctx, drawT, hue, bright);  break;
+      case 'seed':       drawSeed(ctx, drawT, hue, bright, mood);       break;
+      case 'sprite':     drawSprite(ctx, drawT, hue, bright, mood);     break;
+      case 'entity':     drawEntity(ctx, drawT, hue, bright, mood);     break;
+      case 'apex':       drawApex(ctx, drawT, hue, bright, mood);       break;
+      case 'ascendant':  drawAscendant(ctx, drawT, hue, bright, mood);  break;
     }
   }
 
@@ -234,11 +407,11 @@ function drawFrame(
     const zs = ['z', 'z', 'Z'];
     zs.forEach((z, i) => {
       const alpha = Math.max(0, Math.sin(t * 0.001 - i * 0.8));
-      const x = CX + 40 + i * 14;
-      const y = CY - 60 - Math.sin(t * 0.001 - i * 0.8) * 20;
+      const x = CX + 60 + i * 21;
+      const y = CY - 90 - Math.sin(t * 0.001 - i * 0.8) * 30;
       ctx.globalAlpha = alpha * 0.8;
       ctx.fillStyle   = `hsl(${hue}, 80%, 75%)`;
-      ctx.font        = `${12 + i * 4}px 'Share Tech Mono', monospace`;
+      ctx.font        = `${18 + i * 6}px 'Share Tech Mono', monospace`;
       ctx.fillText(z, x, y);
       ctx.globalAlpha = 1;
     });
@@ -248,7 +421,7 @@ function drawFrame(
   if (corrupted) {
     const alpha = Math.abs(Math.sin(t * 0.005)) * 0.35;
     ctx.fillStyle = `rgba(255, 0, 0, ${alpha})`;
-    ctx.fillRect(0, 0, 320, 320);
+    ctx.fillRect(0, 0, canvasW, canvasH);
   }
 }
 
@@ -261,13 +434,20 @@ export default function Creature({ pet, mood }: Props) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const physicalSize = CSS_SIZE * dpr;
+
+    canvas.width  = physicalSize;
+    canvas.height = physicalSize;
+
     const ctx = canvas.getContext('2d')!;
+    ctx.scale(dpr, dpr);
+
     let raf = 0;
-    let start = performance.now();
 
     function loop(now: number) {
-      const t = now - start;
-      drawFrame(ctx, t, pet.stage, mood, hue);
+      drawFrame(ctx, now, pet.stage, mood, hue, CSS_SIZE, CSS_SIZE);
       raf = requestAnimationFrame(loop);
     }
     raf = requestAnimationFrame(loop);
@@ -277,9 +457,13 @@ export default function Creature({ pet, mood }: Props) {
   return (
     <canvas
       ref={canvasRef}
-      width={320}
-      height={320}
-      style={{ display: 'block', maxWidth: '100%', margin: '0 auto' }}
+      style={{
+        display:  'block',
+        width:    `${CSS_SIZE}px`,
+        height:   `${CSS_SIZE}px`,
+        maxWidth: '100%',
+        margin:   '0 auto',
+      }}
     />
   );
 }

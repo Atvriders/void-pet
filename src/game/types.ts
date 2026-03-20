@@ -13,7 +13,7 @@ export interface PetState {
   careScore:  number;   // lifetime care points
   ascensions: number;   // how many times reached ascendant
 
-  corruptTicks: number; // consecutive ticks in critical state
+  corruptTicks: number;  // consecutive ticks in critical state
   recoverNeeded: number; // defrag actions still needed to recover
 
   // Cooldowns (unix timestamp when cooldown expires)
@@ -22,7 +22,16 @@ export interface PetState {
   coolOverclock: number;
 
   lastTick:   number;   // Date.now() of last save
-  log:        string[]; // life event history (max 20)
+  log:        string[]; // life event history (max 30)
+}
+
+export interface LeaderboardEntry {
+  username:   string;
+  careScore:  number;
+  stage:      Stage;
+  age:        number;      // minutes
+  ascensions: number;
+  date:       number;      // Date.now() when entry was recorded
 }
 
 export type Action =

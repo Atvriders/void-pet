@@ -56,7 +56,7 @@ export const INITIAL_STATE: PetState = {
   coolDefrag:    0,
   coolOverclock: 0,
   lastTick:  Date.now(),
-  log:       ['[--:--] Entity detected. Origin: unknown.'],
+  log:       [],
 };
 
 export function reducer(state: PetState, action: Action): PetState {
@@ -219,7 +219,7 @@ export function reducer(state: PetState, action: Action): PetState {
       return { ...state, name: action.name.slice(0, 16).toUpperCase() };
 
     case 'RESET':
-      return { ...INITIAL_STATE, lastTick: Date.now(), ascensions: state.ascensions };
+      return { ...INITIAL_STATE, lastTick: Date.now() };
 
     case 'LOAD':
       return { ...INITIAL_STATE, ...action.state, lastTick: Date.now() };
