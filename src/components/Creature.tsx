@@ -260,13 +260,17 @@ function orb(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, h
 
 function ring(
   ctx: CanvasRenderingContext2D, cx: number, cy: number,
-  rx: number, ry: number, tilt: number, hue: number, alpha: number, width = 2.25
+  rx: number, ry: number, tilt: number, hue: number, alpha: number, width = 2.25,
+  half?: 'back' | 'front'
 ) {
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(tilt);
   ctx.scale(1, ry / rx);
-  ctx.beginPath(); ctx.ellipse(0, 0, rx, rx, 0, 0, TWO_PI);
+  ctx.beginPath();
+  if (half === 'back')       ctx.ellipse(0, 0, rx, rx, 0, Math.PI, TWO_PI);
+  else if (half === 'front') ctx.ellipse(0, 0, rx, rx, 0, 0, Math.PI);
+  else                       ctx.ellipse(0, 0, rx, rx, 0, 0, TWO_PI);
   ctx.strokeStyle = `hsla(${hue}, 100%, 70%, ${alpha})`;
   ctx.lineWidth = width / (ry / rx);
   ctx.stroke();
@@ -516,8 +520,9 @@ function drawSprite(ctx: CanvasRenderingContext2D, t: number, hue: number, brigh
   const pulse = 1 + Math.sin(t * 0.002) * 0.08;
   const spin  = t * 0.0008;
   const orbR  = 48 * pulse;
+  ring(ctx, CX, CY, 78, 27, spin, hue, 0.5 * bright, 2.25, 'back');
   orb(ctx, CX, CY, orbR, hue, bright);
-  ring(ctx, CX, CY, 78, 27, spin, hue, 0.5 * bright);
+  ring(ctx, CX, CY, 78, 27, spin, hue, 0.5 * bright, 2.25, 'front');
   hexagon(ctx, CX, CY, 87, hue + 20);
   for (let i = 0; i < 4; i++) {
     particle(ctx, CX, CY, 97.5, spin * 1.5 + (i / 4) * TWO_PI, hue + i * 15, 3.75);
@@ -530,14 +535,16 @@ function drawEntity(ctx: CanvasRenderingContext2D, t: number, hue: number, brigh
   const s1    = t * 0.0007;
   const s2    = -t * 0.0011;
   const orbR  = 63 * pulse;
+  ring(ctx, CX, CY, 97.5, 33, s1,     hue,      0.55 * bright, 2.25, 'back');
+  ring(ctx, CX, CY, 97.5, 33, s2 + 1, hue + 40, 0.40 * bright, 2.25, 'back');
   orb(ctx, CX, CY, orbR, hue, bright);
-  ring(ctx, CX, CY, 97.5, 33, s1, hue,        0.55 * bright);
-  ring(ctx, CX, CY, 97.5, 33, s2 + 1, hue + 40, 0.40 * bright);
+  ring(ctx, CX, CY, 97.5, 33, s1,     hue,      0.55 * bright, 2.25, 'front');
+  ring(ctx, CX, CY, 97.5, 33, s2 + 1, hue + 40, 0.40 * bright, 2.25, 'front');
   hexagon(ctx, CX, CY, 112.5, hue + 10);
   for (let i = 0; i < 6; i++) {
     particle(ctx, CX, CY, 120, s1 * 1.8 + (i / 6) * TWO_PI, hue + i * 20, 4.5);
   }
-  // Inner dash ring
+  // Inner dash ring (circular — no depth split needed)
   ctx.setLineDash([4.5, 9]);
   ring(ctx, CX, CY, 75, 75, s1 * 0.5, hue + 20, 0.20 * bright, 1.5);
   ctx.setLineDash([]);
@@ -550,9 +557,11 @@ function drawApex(ctx: CanvasRenderingContext2D, t: number, hue: number, bright:
   const s2    = -t * 0.0009;
   const s3    =  t * 0.0013;
   const orbR  = 84 * pulse;
+  ring(ctx, CX, CY, 123, 42, s1,     hue,      0.60 * bright, 2.25, 'back');
+  ring(ctx, CX, CY, 123, 42, s2 + 1, hue + 50, 0.45 * bright, 1.5,  'back');
   orb(ctx, CX, CY, orbR, hue, bright);
-  ring(ctx, CX, CY, 123, 42, s1, hue,        0.60 * bright, 2.25);
-  ring(ctx, CX, CY, 123, 42, s2 + 1, hue + 50, 0.45 * bright, 1.5);
+  ring(ctx, CX, CY, 123, 42, s1,     hue,      0.60 * bright, 2.25, 'front');
+  ring(ctx, CX, CY, 123, 42, s2 + 1, hue + 50, 0.45 * bright, 1.5,  'front');
   ring(ctx, CX, CY, 142.5, 142.5, s3 * 0.3, hue + 20, 0.15 * bright, 1.5);
   hexagon(ctx, CX, CY, 150, hue + 15);
   ctx.setLineDash([3, 12]);
@@ -595,9 +604,11 @@ function drawAscendant(ctx: CanvasRenderingContext2D, t: number, hue: number, br
   bg.addColorStop(1,   'transparent');
   ctx.fillStyle = bg; ctx.fillRect(0, 0, CSS_SIZE, CSS_SIZE);
 
+  ring(ctx, CX, CY, 142.5, 48, s1,     h,      0.65 * bright, 3,    'back');
+  ring(ctx, CX, CY, 142.5, 48, s2 + 1, h + 60, 0.55 * bright, 2.25, 'back');
   orb(ctx, CX, CY, orbR, h, bright * 1.1);
-  ring(ctx, CX, CY, 142.5, 48, s1,         h,        0.65 * bright, 3);
-  ring(ctx, CX, CY, 142.5, 48, s2 + 1,     h + 60,   0.55 * bright, 2.25);
+  ring(ctx, CX, CY, 142.5, 48, s1,     h,      0.65 * bright, 3,    'front');
+  ring(ctx, CX, CY, 142.5, 48, s2 + 1, h + 60, 0.55 * bright, 2.25, 'front');
   ring(ctx, CX, CY, 165,   165, s3 * 0.2,  h + 120,  0.20 * bright, 1.5);
   ring(ctx, CX, CY, 195,   195, -s3 * 0.15, h + 180, 0.12 * bright, 1.5);
   hexagon(ctx, CX, CY, 177, h + 20);
@@ -624,8 +635,9 @@ function drawCorrupted(
   const bright = 0.7;
   const pulse  = 1 + Math.sin(t * 0.004) * 0.15;
   const orbR   = 45 * pulse;
+  ring(ctx, CX, CY, 75, 27, t * 0.001, hue, 0.4, 2.25, 'back');
   orb(ctx, CX, CY, orbR, hue, bright);
-  ring(ctx, CX, CY, 75, 27, t * 0.001, hue, 0.4, 2.25);
+  ring(ctx, CX, CY, 75, 27, t * 0.001, hue, 0.4, 2.25, 'front');
   ctx.save();
   ctx.globalAlpha = 0.6;
   glitchSlices(ctx, t, hue, canvasW, canvasH, physW, physH);
