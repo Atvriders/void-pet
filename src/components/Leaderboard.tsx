@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { getLeaderboard } from '../game/save';
 import type { LeaderboardEntry } from '../game/types';
+import StageBadge from './StageBadge';
 
 interface Props {
   currentUsername: string;
@@ -13,78 +14,14 @@ function formatAge(minutes: number): string {
   return `${h}h ${m}m`;
 }
 
-type Stage = LeaderboardEntry['stage'];
-
-function stageBadge(stage: Stage): React.CSSProperties {
-  const base: React.CSSProperties = {
-    display: 'inline-block',
-    padding: '1px 7px',
-    borderRadius: 3,
-    fontSize: '0.72em',
-    fontWeight: 700,
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase' as const,
-  };
-  switch (stage) {
-    case 'seed':
-      return { ...base, background: '#0e2a2a', color: '#00e5ff', border: '1px solid #00e5ff' };
-    case 'sprite':
-      return { ...base, background: '#0d1a2e', color: '#448aff', border: '1px solid #448aff' };
-    case 'entity':
-      return { ...base, background: '#1a0d2e', color: '#ce93d8', border: '1px solid #ce93d8' };
-    case 'apex':
-      return { ...base, background: '#2a1a00', color: '#ffd54f', border: '1px solid #ffd54f' };
-    case 'ascendant':
-      return {
-        ...base,
-        background: '#111',
-        border: '1px solid #aaa',
-        backgroundClip: 'text',
-        WebkitBackgroundClip: 'text',
-        color: 'transparent',
-        backgroundImage: 'linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)',
-      };
-    case 'corrupted':
-      return { ...base, background: '#2a0000', color: '#ff1744', border: '1px solid #ff1744' };
-    default:
-      return { ...base, background: '#111', color: '#aaa', border: '1px solid #333' };
-  }
-}
-
-function StageBadge({ stage }: { stage: Stage }) {
-  if (stage === 'ascendant') {
-    return (
-      <span
-        style={{
-          display: 'inline-block',
-          padding: '1px 7px',
-          borderRadius: 3,
-          fontSize: '0.72em',
-          fontWeight: 700,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          background: '#111',
-          border: '1px solid #888',
-        }}
-      >
-        <span
-          style={{
-            backgroundImage: 'linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            color: 'transparent',
-            display: 'inline',
-          }}
-        >
-          {stage}
-        </span>
-      </span>
-    );
-  }
-  return <span style={stageBadge(stage)}>{stage}</span>;
-}
-
 export default function Leaderboard({ currentUsername, onClose }: Props) {
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
   const entries: LeaderboardEntry[] = useMemo(() => {
     const board = getLeaderboard();
     return [...board].sort((a, b) => b.careScore - a.careScore).slice(0, 50);
@@ -217,7 +154,6 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
                 <th style={thStyle}>Stage</th>
                 <th
                   style={thRightStyle}
-                  className="hide-on-mobile"
                   data-hide-mobile="true"
                 >
                   Age
