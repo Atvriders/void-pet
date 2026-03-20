@@ -6,12 +6,19 @@ interface Props {
   dispatch: (a: Action) => void;
 }
 
+interface Effect {
+  icon: string;
+  good: boolean; // true = green (beneficial), false = orange (harmful)
+  sign: '+' | '−';
+}
+
 interface Btn {
   label:    string;
   subLabel: string;
   icon:     string;
   action:   Action;
   tooltip:  string;
+  effects:  Effect[];
   ready:    (p: PetState, now: number) => boolean;
 }
 
@@ -22,6 +29,10 @@ const ACTIONS: Btn[] = [
     icon:     '⬡',
     action:   { type: 'INJECT' },
     tooltip:  'Feed data packet. +Signal, +Heat.',
+    effects:  [
+      { icon: '◈', sign: '+', good: true  },  // +Signal
+      { icon: '▲', sign: '+', good: false },  // +Heat (bad)
+    ],
     ready:    (p) => !p.sleeping && p.stage !== 'corrupted',
   },
   {
@@ -30,6 +41,11 @@ const ACTIONS: Btn[] = [
     icon:     '◈',
     action:   { type: 'SIMULATE' },
     tooltip:  '+Coherence, +Heat, -Power. 30s cooldown.',
+    effects:  [
+      { icon: '❋', sign: '+', good: true  },  // +Coherence
+      { icon: '▲', sign: '+', good: false },  // +Heat (bad)
+      { icon: '⚡', sign: '−', good: false },  // -Power (bad)
+    ],
     ready:    (p, now) => !p.sleeping && p.stage !== 'corrupted'
                        && now >= p.coolSimulate && p.power >= 15,
   },
@@ -39,6 +55,10 @@ const ACTIONS: Btn[] = [
     icon:     '⟳',
     action:   { type: 'DEFRAG' },
     tooltip:  '-Heat, +Coherence. Required to recover from corruption. 60s cooldown.',
+    effects:  [
+      { icon: '▲', sign: '−', good: true  },  // -Heat (good)
+      { icon: '❋', sign: '+', good: true  },  // +Coherence
+    ],
     ready:    (p, now) => !p.sleeping && now >= p.coolDefrag,
   },
   {
@@ -47,6 +67,10 @@ const ACTIONS: Btn[] = [
     icon:     '⏾',
     action:   { type: 'HIBERNATE' },
     tooltip:  'Toggle sleep. Restores Power, cools Heat; slows (not pauses) stat decay.',
+    effects:  [
+      { icon: '▲', sign: '−', good: true  },  // -Heat (good)
+      { icon: '⚡', sign: '+', good: true  },  // +Power
+    ],
     ready:    (p) => p.stage !== 'corrupted',
   },
   {
@@ -55,6 +79,11 @@ const ACTIONS: Btn[] = [
     icon:     '⚡',
     action:   { type: 'OVERCLOCK' },
     tooltip:  'Max coherence boost — high heat risk. 20% chance of thermal surge. 120s cooldown.',
+    effects:  [
+      { icon: '❋', sign: '+', good: true  },  // +Coherence
+      { icon: '▲', sign: '+', good: false },  // +Heat (bad)
+      { icon: '⚡', sign: '−', good: false },  // -Power (bad)
+    ],
     ready:    (p, now) => !p.sleeping && p.stage !== 'corrupted'
                        && now >= p.coolOverclock && p.power >= 25,
   },
@@ -143,6 +172,22 @@ export default function ActionBar({ pet, now, dispatch }: Props) {
           line-height: 1;
         }
 
+        .action-effects {
+          display: flex;
+          gap: 4px;
+          margin-top: 3px;
+        }
+
+        .action-effect {
+          font-size: 10px;
+          line-height: 1;
+          letter-spacing: 0;
+          opacity: 0.75;
+        }
+
+        .action-effect.good { color: #4ade80; }
+        .action-effect.bad  { color: #fb923c; }
+
         @media (max-width: 599px) {
           .action-bar {
             display: grid;
@@ -204,6 +249,13 @@ export default function ActionBar({ pet, now, dispatch }: Props) {
               <span className="action-icon" aria-hidden="true">{btn.icon}</span>
               <span className="action-label">{btn.label}</span>
               <span className="action-sublabel" aria-hidden="true">{subLabel}</span>
+              <span className="action-effects" aria-hidden="true">
+                {btn.effects.map(e => (
+                  <span key={e.icon} className={`action-effect ${e.good ? 'good' : 'bad'}`}>
+                    {e.icon}{e.sign}
+                  </span>
+                ))}
+              </span>
             </button>
           );
         })}
