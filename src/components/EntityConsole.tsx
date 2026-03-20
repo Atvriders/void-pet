@@ -146,10 +146,11 @@ export default function EntityConsole({ pet, mood, username }: Props) {
         fontFamily:  '"Share Tech Mono", monospace',
         fontSize:    12,
         flexShrink:  0,
+        flexWrap:    'wrap',
       }}
     >
       {/* Left: Entity Metrics */}
-      <div style={{ flex: '0 0 auto' }}>
+      <div style={{ flex: '0 0 auto', minWidth: 160 }}>
         <div
           style={{
             color:        '#1e4060',
@@ -175,7 +176,15 @@ export default function EntityConsole({ pet, mood, username }: Props) {
                 {label}
               </span>
               <span
-                style={{ color: '#8ab4c8', letterSpacing: 1, whiteSpace: 'nowrap' }}
+                style={{
+                  color:        '#8ab4c8',
+                  letterSpacing: 1,
+                  whiteSpace:   'nowrap',
+                  overflow:     'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth:     180,
+                  display:      'inline-block',
+                }}
               >
                 {getValue(pet, mood, username)}
               </span>
@@ -188,7 +197,7 @@ export default function EntityConsole({ pet, mood, username }: Props) {
       <div style={{ width: 1, background: '#0e1e2e', flexShrink: 0 }} />
 
       {/* Right: System Console */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ flex: 1, minWidth: 200 }}>
         <div
           style={{
             color:        '#1e4060',
