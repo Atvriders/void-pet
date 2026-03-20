@@ -179,7 +179,7 @@ export default function ActionBar({ pet, now, dispatch }: Props) {
         }
 
         .action-effect {
-          font-size: 10px;
+          font-size: 13px;
           line-height: 1;
           letter-spacing: 0;
           opacity: 0.75;
