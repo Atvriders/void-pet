@@ -152,6 +152,7 @@ export default function ActionBar({ pet, now, dispatch }: Props) {
             padding: 6px;
           }
 
+          /* Center the 2-button bottom row by spanning cols 1-2 and 2-3 */
           .action-bar .action-btn:nth-child(4) {
             grid-column: 1 / 2;
             justify-self: stretch;
@@ -183,17 +184,26 @@ export default function ActionBar({ pet, now, dispatch }: Props) {
                               ? 'wake'
                               : btn.subLabel;
 
+          const isHibernate = btn.action.type === 'HIBERNATE';
+
           return (
             <button
               key={btn.label}
               className={`action-btn${ok ? '' : ' disabled'}${isSleeping ? ' active' : ''}`}
               title={btn.tooltip}
+              disabled={!ok}
+              aria-disabled={!ok}
+              aria-pressed={isHibernate ? isSleeping : undefined}
               onClick={() => ok && dispatch(btn.action)}
             >
-              {cool && <span className="action-cool">{cool}</span>}
-              <span className="action-icon">{btn.icon}</span>
+              {cool && (
+                <span className="action-cool" aria-live="polite" aria-atomic="true">
+                  {cool}
+                </span>
+              )}
+              <span className="action-icon" aria-hidden="true">{btn.icon}</span>
               <span className="action-label">{btn.label}</span>
-              <span className="action-sublabel">{subLabel}</span>
+              <span className="action-sublabel" aria-hidden="true">{subLabel}</span>
             </button>
           );
         })}
