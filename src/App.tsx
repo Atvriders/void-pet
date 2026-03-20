@@ -115,7 +115,7 @@ export default function App() {
   const doDispatch = (a: Action) => dispatch(a);
 
   return (
-    <div className="app" style={{ '--mood-accent': moodHex } as React.CSSProperties} data-mood={mood}>
+    <div className="app" data-mood={mood}>
       {/* Scanline overlay */}
       <div className="scanlines" aria-hidden />
 
