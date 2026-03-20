@@ -6,6 +6,7 @@ on:
 
 env:
   IMAGE: ghcr.io/atvriders/void-pet
+  API_IMAGE: ghcr.io/atvriders/void-pet-api
 
 jobs:
   build:
@@ -21,12 +22,23 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v5
+      - name: Build & push frontend
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Build & push API
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          push: true
+          tags: |
+            ${{ env.API_IMAGE }}:latest
+            ${{ env.API_IMAGE }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

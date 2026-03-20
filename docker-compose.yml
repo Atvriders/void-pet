@@ -1,7 +1,19 @@
 version: "3.8"
+
 services:
+  api:
+    image: ghcr.io/atvriders/void-pet-api:latest
+    volumes:
+      - void_data:/data
+    restart: unless-stopped
+
   void-pet:
     image: ghcr.io/atvriders/void-pet:latest
     ports:
       - "3004:80"
+    depends_on:
+      - api
     restart: unless-stopped
+
+volumes:
+  void_data:

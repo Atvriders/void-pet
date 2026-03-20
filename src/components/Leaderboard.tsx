@@ -1,5 +1,5 @@
-import React, { useMemo, useEffect } from 'react';
-import { getLeaderboard } from '../game/save';
+import React, { useState, useEffect } from 'react';
+import { fetchLeaderboard } from '../game/save';
 import type { LeaderboardEntry } from '../game/types';
 import StageBadge from './StageBadge';
 
@@ -22,9 +22,12 @@ export default function Leaderboard({ currentUsername, onClose }: Props) {
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
-  const entries: LeaderboardEntry[] = useMemo(() => {
-    const board = getLeaderboard();
-    return [...board].sort((a, b) => b.careScore - a.careScore).slice(0, 50);
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+
+  useEffect(() => {
+    fetchLeaderboard().then(data => {
+      setEntries([...data].sort((a, b) => b.careScore - a.careScore).slice(0, 50));
+    });
   }, []);
 
   const overlayStyle: React.CSSProperties = {

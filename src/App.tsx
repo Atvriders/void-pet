@@ -10,11 +10,11 @@ import { getMood, MOOD_HUE, MOOD_LABEL } from './game/mood';
 import {
   getStoredUsername,
   setStoredUsername,
-  savePet,
-  loadPet,
-  deletePet,
-  submitScore,
-  removeScore,
+  loadPetFromServer,
+  savePetToServer,
+  deletePetFromServer,
+  submitScoreToServer,
+  removeScoreFromServer,
 } from './game/save';
 import './App.css';
 
@@ -33,10 +33,11 @@ export default function App() {
   // ── On mount: if we already have a stored username, load that pet ─────────
   useEffect(() => {
     if (username) {
-      const saved = loadPet(username);
-      if (saved) {
-        dispatch({ type: 'LOAD', state: saved });
-      }
+      loadPetFromServer(username).then(saved => {
+        if (saved) {
+          dispatch({ type: 'LOAD', state: saved });
+        }
+      });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -60,8 +61,8 @@ export default function App() {
   // ── Persist pet on every state change ────────────────────────────────────
   useEffect(() => {
     if (!username) return;
-    savePet(username, petState);
-    submitScore({
+    savePetToServer(username, petState);
+    submitScoreToServer({
       username,
       careScore:  petState.careScore,
       stage:      petState.stage,
@@ -72,9 +73,9 @@ export default function App() {
   }, [username, petState]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
-  function handleUsernameSubmit(name: string) {
+  async function handleUsernameSubmit(name: string) {
     setStoredUsername(name);
-    const saved = loadPet(name);
+    const saved = await loadPetFromServer(name);
     if (saved) {
       dispatch({ type: 'LOAD', state: saved });
     } else {
@@ -95,8 +96,8 @@ export default function App() {
   function handleAbandon() {
     if (confirm('Abandon this entity? All progress will be lost.')) {
       if (username) {
-        deletePet(username);
-        removeScore(username);
+        deletePetFromServer(username);
+        removeScoreFromServer(username);
         setStoredUsername(''); // clear persisted username so next session starts fresh
       }
       dispatch({ type: 'RESET' });
