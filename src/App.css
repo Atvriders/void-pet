@@ -357,6 +357,16 @@ html, body {
 }
 
 /* ── Mobile overrides ───────────────────────────────────────────────────── */
+@media (max-width: 599px) {
+  /* Topbar: wrap to two rows so action buttons are never clipped off-screen */
+  .topbar { flex-wrap: wrap; padding: 8px 12px; gap: 6px; }
+  .topbar-title-block { flex: 1; min-width: 0; }
+  .topbar-username { display: none; } /* entity name in subtitle already identifies context */
+  .topbar-actions { width: 100%; margin-left: 0; justify-content: flex-end; }
+  .topbar-btn { padding: 5px 8px; font-size: 11px; letter-spacing: 0; }
+  .rename-input { width: 90px; font-size: 11px; }
+}
+
 @media (max-width: 767px) {
   .topbar-title { font-size: 16px; }
   .game-area { padding: 12px; gap: 12px; }

@@ -481,11 +481,12 @@ export default function Creature({ pet, mood }: Props) {
     <canvas
       ref={canvasRef}
       style={{
-        display:  'block',
-        width:    `${CSS_SIZE}px`,
-        height:   `${CSS_SIZE}px`,
-        maxWidth: '100%',
-        margin:   '0 auto',
+        display:     'block',
+        width:       `${CSS_SIZE}px`,
+        height:      `${CSS_SIZE}px`,
+        maxWidth:    '100%',
+        aspectRatio: '1 / 1',
+        margin:      '0 auto',
       }}
     />
   );

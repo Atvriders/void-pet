@@ -74,12 +74,13 @@ function SegmentBar({ val, invert }: { val: number; invert: boolean }) {
         <div
           key={i}
           style={{
-            width: 8,
+            flex: '1 1 0',
+            maxWidth: 8,
+            minWidth: 3,
             height: 10,
             borderRadius: 1,
             background: i < filled ? color : '#1a2240',
             boxShadow:  i < filled ? `0 0 4px ${color}80` : 'none',
-            flexShrink: 0,
           }}
         />
       ))}

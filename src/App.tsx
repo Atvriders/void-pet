@@ -129,7 +129,7 @@ export default function App() {
         </div>
 
         {/* Center: username */}
-        <div style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: 1 }}>
+        <div className="topbar-username" style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: 1 }}>
           @{username}
         </div>
 

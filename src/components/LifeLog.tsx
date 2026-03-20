@@ -39,7 +39,7 @@ export default function LifeLog({ log }: Props) {
     .lifelog-scroll {
       max-height: 240px;
     }
-    @media (max-width: 600px) {
+    @media (max-width: 599px) {
       .lifelog-scroll {
         max-height: 180px;
       }
