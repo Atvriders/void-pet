@@ -423,13 +423,13 @@ function drawFrame(
     }
   }
 
-  // Sleeping Z's
+  // Sleeping Z's — use drawT so Z animation speed matches body (0.3× during sleep)
   if (sleeping) {
     const zs = ['z', 'z', 'Z'];
     zs.forEach((z, i) => {
-      const alpha = Math.max(0, Math.sin(t * 0.001 - i * 0.8));
+      const alpha = Math.max(0, Math.sin(drawT * 0.001 - i * 0.8));
       const x = CX + 60 + i * 21;
-      const y = CY - 90 - Math.sin(t * 0.001 - i * 0.8) * 30;
+      const y = CY - 90 - Math.sin(drawT * 0.001 - i * 0.8) * 30;
       ctx.globalAlpha = alpha * 0.8;
       ctx.fillStyle   = `hsl(${hue}, 80%, 75%)`;
       ctx.font        = `${18 + i * 6}px 'Share Tech Mono', monospace`;
