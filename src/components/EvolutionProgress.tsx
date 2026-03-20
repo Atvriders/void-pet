@@ -160,9 +160,9 @@ export default function EvolutionProgress({ state }: Props) {
   if (limiting.label === 'Age') {
     constraintText = `Age: ${formatMinutes(limiting.current)} / ${formatMinutes(limiting.required)}`;
   } else if (limiting.label === 'Stats') {
-    constraintText = `Avg Stats: ${Math.round(limiting.current)} / ${limiting.required}`;
+    constraintText = `Avg Stats: ${Math.floor(limiting.current)} / ${limiting.required}`;
   } else {
-    constraintText = `Care: ${Math.round(limiting.current)} / ${limiting.required}`;
+    constraintText = `Care: ${Math.floor(limiting.current)} / ${limiting.required}`;
   }
 
   return (
