@@ -4,10 +4,10 @@ interface Props { log: string[] }
 
 function getEntryBorderColor(entry: string): string {
   const lower = entry.toLowerCase();
-  if (lower.includes("evolved") || lower.includes("ascend")) return "#fbbf24";
+  if (lower.includes("achieved") || lower.includes("ascend")) return "#fbbf24";
   if (lower.includes("corrupt") || lower.includes("critical")) return "#ff4040";
-  if (lower.includes("recovered") || lower.includes("defrag")) return "#22d3a0";
-  if (lower.includes("hibernate") || lower.includes("sleep")) return "#4060a0";
+  if (lower.includes("recovery") || lower.includes("defrag")) return "#22d3a0";
+  if (lower.includes("hibernate")) return "#4060a0";
   return "#1a2240";
 }
 
@@ -36,9 +36,12 @@ export default function LifeLog({ log }: Props) {
     .lifelog-scroll::-webkit-scrollbar-thumb:hover {
       background: #2a3f60;
     }
+    .lifelog-scroll {
+      max-height: 240px;
+    }
     @media (max-width: 600px) {
       .lifelog-scroll {
-        max-height: 180px !important;
+        max-height: 180px;
       }
     }
   `;
@@ -109,7 +112,6 @@ export default function LifeLog({ log }: Props) {
         <div
           className="lifelog-scroll"
           style={{
-            maxHeight: "240px",
             overflowY: "auto",
             padding: "6px 0",
           }}
