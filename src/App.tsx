@@ -5,7 +5,7 @@ import ActionBar      from './components/ActionBar';
 import LifeLog        from './components/LifeLog';
 import UsernameScreen from './components/UsernameScreen';
 import Leaderboard    from './components/Leaderboard';
-import { reducer, INITIAL_STATE } from './game/reducer';
+import { reducer, INITIAL_STATE, makeBootLog } from './game/reducer';
 import { getMood, MOOD_HUE, MOOD_LABEL } from './game/mood';
 import {
   getStoredUsername,
@@ -77,6 +77,8 @@ export default function App() {
     const saved = loadPet(name);
     if (saved) {
       dispatch({ type: 'LOAD', state: saved });
+    } else {
+      dispatch({ type: 'LOAD', state: { ...INITIAL_STATE, log: makeBootLog() } });
     }
     setUsername(name);
   }

@@ -418,10 +418,11 @@ function drawFrame(
     : mood === 'happy' ? 1.15
     : 1.0;
 
+  const drawT = sleeping ? t * 0.3 : overheating ? t * 1.6 : t;
+
   if (corrupted) {
     drawCorrupted(ctx, t, stage, mood, canvasW, canvasH, physW, physH);
   } else {
-    const drawT = sleeping ? t * 0.3 : overheating ? t * 1.6 : t;
     switch (stage) {
       case 'seed':       drawSeed(ctx, drawT, hue, bright, mood);       break;
       case 'sprite':     drawSprite(ctx, drawT, hue, bright, mood);     break;
