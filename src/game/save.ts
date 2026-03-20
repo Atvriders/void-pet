@@ -47,21 +47,6 @@ export function deletePet(username: string): void {
   } catch {}
 }
 
-export function listUsers(): string[] {
-  try {
-    const users: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('void_pet_')) {
-        users.push(key.slice('void_pet_'.length));
-      }
-    }
-    return users;
-  } catch {
-    return [];
-  }
-}
-
 // Leaderboard
 
 export function getLeaderboard(): LeaderboardEntry[] {
