@@ -16,7 +16,6 @@ import {
   submitScore,
   removeScore,
 } from './game/save';
-import type { Action } from './game/types';
 import './App.css';
 
 export default function App() {
@@ -32,11 +31,7 @@ export default function App() {
   const rafRef               = useRef(0);
 
   // ── On mount: if we already have a stored username, load that pet ─────────
-  // (runs once; username from localStorage is set in useState initialiser above)
-  const initialLoadDone = useRef(false);
   useEffect(() => {
-    if (initialLoadDone.current) return;
-    initialLoadDone.current = true;
     if (username) {
       const saved = loadPet(username);
       if (saved) {
@@ -54,7 +49,7 @@ export default function App() {
         const n = Date.now();
         dispatch({ type: 'TICK', now: n });
         setNow(n);
-        last = ts;
+        last += 1000; // step by exactly 1s to prevent clock drift
       }
       rafRef.current = requestAnimationFrame(loop);
     }
@@ -99,9 +94,11 @@ export default function App() {
     if (confirm('Abandon this entity? All progress will be lost.')) {
       if (username) {
         deletePet(username);
-        removeScore(username); // remove leaderboard entry; don't zero it with reset state
+        removeScore(username);
+        setStoredUsername(''); // clear persisted username so next session starts fresh
       }
       dispatch({ type: 'RESET' });
+      setUsername(null); // return to username screen
     }
   }
 
@@ -111,12 +108,10 @@ export default function App() {
   }
 
   // ── Game view ─────────────────────────────────────────────────────────────
-  const mood     = getMood(petState);
+  const mood      = getMood(petState);
   const moodLabel = MOOD_LABEL[mood];
-  const hue      = MOOD_HUE[mood];
-  const moodHex  = `hsl(${hue}, 80%, 55%)`;
-
-  const doDispatch = (a: Action) => dispatch(a);
+  const hue       = MOOD_HUE[mood];
+  const moodHex   = `hsl(${hue}, 80%, 55%)`;
 
   return (
     <div className="app" data-mood={mood}>
@@ -200,11 +195,11 @@ export default function App() {
             <Creature pet={petState} mood={mood} />
           </div>
           <div className={`mood-badge ${mood}`}>{moodLabel}</div>
-          <ActionBar pet={petState} now={now} dispatch={doDispatch} />
+          <ActionBar pet={petState} now={now} dispatch={dispatch} />
         </div>
 
         <div className="info-col">
-          <StatPanel pet={petState} mood={mood} now={now} />
+          <StatPanel pet={petState} mood={mood} />
           <LifeLog log={petState.log} />
         </div>
       </div>

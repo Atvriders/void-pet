@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import type { PetState, Mood } from '../game/types';
 import { MOOD_LABEL } from '../game/mood';
 
-interface Props { pet: PetState; mood: Mood; now: number }
+interface Props { pet: PetState; mood: Mood }
 
 // ─── Stat bar config ────────────────────────────────────────────────────────
 
@@ -166,7 +166,7 @@ function MetaChip({ label, value }: { label: string; value: string }) {
 
 // ─── Main component ──────────────────────────────────────────────────────────
 
-export default function StatPanel({ pet, mood, now: _now }: Props) {
+export default function StatPanel({ pet, mood }: Props) {
   const moodColor = MOOD_COLORS[mood] ?? '#a0b0c0';
   const moodIcon  = MOOD_ICONS[mood]  ?? '○';
 
