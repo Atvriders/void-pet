@@ -40,7 +40,7 @@ const stageStyles: Record<Stage, { color: string; border: string; background: st
 };
 
 const sizeStyles: Record<'sm' | 'md' | 'lg', { fontSize: string; padding: string; borderRadius: string }> = {
-  sm: { fontSize: '10px', padding: '2px 6px', borderRadius: '4px' },
+  sm: { fontSize: '12px', padding: '2px 6px', borderRadius: '4px' },
   md: { fontSize: '12px', padding: '3px 8px', borderRadius: '5px' },
   lg: { fontSize: '14px', padding: '4px 10px', borderRadius: '6px' },
 };
