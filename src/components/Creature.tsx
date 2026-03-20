@@ -121,8 +121,8 @@ function drawFace(
   const pupilDY = (sad || corrupted) ? pupilR * 0.5 : hungry ? -pupilR * 0.4 : 0;
 
   // Pupil colour
-  const pupilColor = overheating
-    ? 'hsl(0, 100%, 55%)'
+  const pupilColor = overheating || corrupted
+    ? 'hsl(5, 100%, 60%)'
     : happy
       ? `hsl(${hue}, 100%, 80%)`
       : `hsl(${hue}, 90%, 65%)`;
@@ -173,6 +173,14 @@ function drawFace(
       ctx.beginPath(); ctx.arc(ex - pupilR * 0.3, eyeY + pupilDY - pupilR * 0.3, pupilR * 0.28, 0, TWO_PI);
       ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
       ctx.fill();
+
+      // Drooping eyelid for tired — dark arc covers top half of sclera
+      if (mood === 'tired') {
+        ctx.beginPath();
+        ctx.arc(ex, eyeY, eyeR, Math.PI, 0);
+        ctx.fillStyle = `hsla(${hue}, 25%, 10%, 0.88)`;
+        ctx.fill();
+      }
     });
   }
 
