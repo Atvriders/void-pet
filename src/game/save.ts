@@ -74,19 +74,26 @@ export function getLeaderboard(): LeaderboardEntry[] {
   }
 }
 
+/** Only updates the leaderboard entry if the new score is strictly higher than
+ *  the existing entry for this username. This prevents every-tick writes from
+ *  clobbering a peak score with a lower current value, and avoids redundant
+ *  leaderboard rewrites when nothing meaningful has changed. */
 export function submitScore(entry: LeaderboardEntry): void {
   try {
-    let board = getLeaderboard();
-    board = board.filter((e) => e.username !== entry.username);
-    board.push(entry);
-    board.sort((a, b) => b.careScore - a.careScore);
-    board = board.slice(0, 50);
-    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(board));
+    const board = getLeaderboard();
+    const existing = board.find((e) => e.username === entry.username);
+    if (existing && existing.careScore >= entry.careScore) return; // never downgrade
+    const updated = board.filter((e) => e.username !== entry.username);
+    updated.push(entry);
+    updated.sort((a, b) => b.careScore - a.careScore);
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(updated.slice(0, 50)));
   } catch {}
 }
 
-export function clearLeaderboard(): void {
+/** Removes a username's entry from the leaderboard entirely (used on abandon). */
+export function removeScore(username: string): void {
   try {
-    localStorage.removeItem(LEADERBOARD_KEY);
+    const board = getLeaderboard().filter((e) => e.username !== username);
+    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(board));
   } catch {}
 }

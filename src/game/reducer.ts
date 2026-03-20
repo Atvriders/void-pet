@@ -223,8 +223,19 @@ export function reducer(state: PetState, action: Action): PetState {
     case 'RESET':
       return { ...INITIAL_STATE, lastTick: Date.now() };
 
-    case 'LOAD':
-      return { ...INITIAL_STATE, ...action.state, lastTick: Date.now() };
+    case 'LOAD': {
+      const s = action.state;
+      // Clamp numeric stats from localStorage in case stored values are NaN/corrupt
+      const safe = {
+        signal:    clamp(Number(s.signal)    || 0),
+        coherence: clamp(Number(s.coherence) || 0),
+        heat:      clamp(Number(s.heat)      || 0),
+        power:     clamp(Number(s.power)     || 0),
+        careScore: Math.max(0, Number(s.careScore) || 0),
+        age:       Math.max(0, Number(s.age)       || 0),
+      };
+      return { ...INITIAL_STATE, ...s, ...safe, lastTick: Date.now() };
+    }
 
     default:
       return state;

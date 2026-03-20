@@ -14,6 +14,7 @@ import {
   loadPet,
   deletePet,
   submitScore,
+  removeScore,
 } from './game/save';
 import type { Action } from './game/types';
 import './App.css';
@@ -96,7 +97,10 @@ export default function App() {
 
   function handleAbandon() {
     if (confirm('Abandon this entity? All progress will be lost.')) {
-      if (username) deletePet(username);
+      if (username) {
+        deletePet(username);
+        removeScore(username); // remove leaderboard entry; don't zero it with reset state
+      }
       dispatch({ type: 'RESET' });
     }
   }
