@@ -89,9 +89,9 @@ export function reducer(state: PetState, action: Action): PetState {
       if (signal < 20) coherence = clamp(coherence - 0.008 * elapsed);
 
       age       += elapsed / 60; // convert to minutes
-      careScore += (signal > 60 ? 1 : 0) + (coherence > 60 ? 1 : 0) +
-                   (heat < 40   ? 1 : 0) + (power > 40    ? 1 : 0);
-      careScore  = Math.floor(careScore * (elapsed / 60)); // scale to per-minute
+      const careGain = (signal > 60 ? 1 : 0) + (coherence > 60 ? 1 : 0) +
+                       (heat < 40   ? 1 : 0) + (power > 40    ? 1 : 0);
+      careScore += careGain * (elapsed / 60); // accumulate scaled to per-minute
 
       // Corruption check
       const critical = signal < 5 && coherence < 5 && heat > 85;
