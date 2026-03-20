@@ -34,31 +34,4 @@ export const MOOD_LABEL: Record<Mood, string> = {
   corrupted:  '⚠ CORRUPTION DETECTED',
 };
 
-export interface FaceExpression {
-  eyeStyle: 'open' | 'closed' | 'wide' | 'squint' | 'x';
-  mouthStyle: 'smile' | 'frown' | 'neutral' | 'wavy' | 'small-smile' | 'gasp';
-  pupilOffset: { x: number; y: number };  // relative offset for pupil within eye
-  eyeScale: number;  // multiplier on eye size (1.0 = normal)
-  blinkRate: number; // seconds between blinks (0 = no blink)
-}
 
-export function getFaceExpression(mood: Mood): FaceExpression {
-  switch (mood) {
-    case 'happy':
-      return { eyeStyle: 'wide',   mouthStyle: 'smile',       pupilOffset: { x: 0, y:  0 }, eyeScale: 1.10, blinkRate: 3 };
-    case 'neutral':
-      return { eyeStyle: 'open',   mouthStyle: 'neutral',     pupilOffset: { x: 0, y:  0 }, eyeScale: 1.00, blinkRate: 4 };
-    case 'sad':
-      return { eyeStyle: 'squint', mouthStyle: 'frown',       pupilOffset: { x: 0, y:  3 }, eyeScale: 0.85, blinkRate: 6 };
-    case 'tired':
-      return { eyeStyle: 'squint', mouthStyle: 'neutral',     pupilOffset: { x: 0, y:  2 }, eyeScale: 0.75, blinkRate: 2 };
-    case 'hungry':
-      return { eyeStyle: 'open',   mouthStyle: 'gasp',        pupilOffset: { x: 0, y: -2 }, eyeScale: 1.05, blinkRate: 5 };
-    case 'sleeping':
-      return { eyeStyle: 'closed', mouthStyle: 'small-smile', pupilOffset: { x: 0, y:  0 }, eyeScale: 1.00, blinkRate: 0 };
-    case 'overheating':
-      return { eyeStyle: 'wide',   mouthStyle: 'wavy',        pupilOffset: { x: 0, y: -3 }, eyeScale: 1.15, blinkRate: 8 };
-    case 'corrupted':
-      return { eyeStyle: 'x',      mouthStyle: 'wavy',        pupilOffset: { x: 0, y:  0 }, eyeScale: 1.00, blinkRate: 0 };
-  }
-}
